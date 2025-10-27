@@ -33,6 +33,73 @@
             line-height: 1.6;
         }
 
+        /* Temporary Warning Banner */
+        .temp-warning-banner {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            z-index: 1001;
+            max-width: 350px;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            border-left: 4px solid #f1c40f;
+            animation: slideInLeft 0.5s ease-out;
+        }
+
+        .temp-warning-banner strong {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: #f1c40f;
+        }
+
+        .temp-warning-banner .close-btn {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+
+        .temp-warning-banner .close-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        @keyframes slideInLeft {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .temp-warning-banner {
+                left: 10px;
+                right: 10px;
+                max-width: none;
+                top: 15px;
+            }
+        }
+
         /* Cookie Banner */
         .cookie-banner {
             position: fixed;
@@ -687,6 +754,17 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+    <!-- Temporary Warning Banner -->
+    <div class="temp-warning-banner" id="tempWarningBanner">
+        <button class="close-btn" onclick="closeWarningBanner()">&times;</button>
+        <strong>Atenção:</strong>
+        Para carregar todas as informações corretamente, por favor, atualize a página.
+        <br><br>
+        <strong>No computador:</strong> Pressione Ctrl + F5 (Windows) ou Cmd + Shift + R (Mac) para atualizar totalmente.
+        <br><br>
+        <strong>No smartphone:</strong> Deslize para baixo na tela para atualizar a página.
+    </div>
+
     <!-- Cookie Banner -->
     <div class="cookie-banner" id="cookieBanner">
         <p id="cookieText">We use cookies to enhance your experience. By continuing to visit this site you agree to our use of cookies.</p>
@@ -784,6 +862,26 @@
     </footer>
 
     <script>
+        // Temporary warning banner functionality
+        function closeWarningBanner() {
+            const banner = document.getElementById('tempWarningBanner');
+            if (banner) {
+                banner.style.display = 'none';
+            }
+        }
+
+        // Auto-close after 2 minutes (120000 milliseconds)
+        setTimeout(function() {
+            closeWarningBanner();
+        }, 120000);
+
+        // Also close if user clicks anywhere on the banner (except the close button)
+        document.getElementById('tempWarningBanner').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeWarningBanner();
+            }
+        });
+
         // Data structures
         let categories = JSON.parse(localStorage.getItem('categories')) || [
             { id: 1, name: 'Videos', icon: 'fas fa-video', image: null, count: 0 },
