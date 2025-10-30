@@ -33,7 +33,7 @@
             line-height: 1.6;
         }
 
-        /* Temporary Warning Banner - REDUZIDO */
+        /* Temporary Warning Banner */
         .temp-warning-banner {
             position: fixed;
             top: 10px;
@@ -971,7 +971,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <!-- Temporary Warning Banner - REDUZIDO -->
+    <!-- Temporary Warning Banner -->
     <div class="temp-warning-banner" id="tempWarningBanner" style="display: none;">
         <button class="close-btn" onclick="closeWarningBanner()">&times;</button>
         <span id="warningText">Please refresh the page to load all information correctly.</span>
@@ -1106,445 +1106,9 @@
 
     <script>
         // Data structures
-        let categories = JSON.parse(localStorage.getItem('categories')) || [
-            { 
-                id: 1, 
-                name: 'Videos', 
-                nameEn: 'Videos',
-                icon: 'fas fa-video', 
-                description: 'Watch and discover videos from various platforms',
-                descriptionEn: 'Watch and discover videos from various platforms',
-                image: null, 
-                count: 0, 
-                isAdult: false 
-            },
-            { 
-                id: 2, 
-                name: 'Social Media', 
-                nameEn: 'Social Media',
-                icon: 'fas fa-share-alt', 
-                description: 'Connect with people and share content',
-                descriptionEn: 'Connect with people and share content',
-                image: null, 
-                count: 0, 
-                isAdult: false 
-            },
-            { 
-                id: 3, 
-                name: 'Music', 
-                nameEn: 'Music',
-                icon: 'fas fa-music', 
-                description: 'Listen to music, discover artists and playlists',
-                descriptionEn: 'Listen to music, discover artists and playlists',
-                image: null, 
-                count: 0, 
-                isAdult: false 
-            },
-            { 
-                id: 4, 
-                name: 'Education', 
-                nameEn: 'Education',
-                icon: 'fas fa-graduation-cap', 
-                description: 'Learn new skills and expand your knowledge',
-                descriptionEn: 'Learn new skills and expand your knowledge',
-                image: null, 
-                count: 0, 
-                isAdult: false 
-            },
-            { 
-                id: 5, 
-                name: 'News', 
-                nameEn: 'News',
-                icon: 'fas fa-newspaper', 
-                description: 'Stay updated with the latest news and events',
-                descriptionEn: 'Stay updated with the latest news and events',
-                image: null, 
-                count: 0, 
-                isAdult: false 
-            },
-            { 
-                id: 6, 
-                name: 'Shopping', 
-                nameEn: 'Shopping',
-                icon: 'fas fa-shopping-cart', 
-                description: 'Find the best deals and products online',
-                descriptionEn: 'Find the best deals and products online',
-                image: null, 
-                count: 0, 
-                isAdult: false 
-            },
-            { 
-                id: 7, 
-                name: 'Adult Content', 
-                nameEn: 'Adult Content',
-                icon: 'fas fa-exclamation-triangle', 
-                description: 'Content restricted to adults over 18 years',
-                descriptionEn: 'Content restricted to adults over 18 years',
-                image: null, 
-                count: 0, 
-                isAdult: true 
-            },
-            { 
-                id: 8, 
-                name: 'Games', 
-                nameEn: 'Games',
-                icon: 'fas fa-gamepad', 
-                description: 'Play online games and discover new titles',
-                descriptionEn: 'Play online games and discover new titles',
-                image: null, 
-                count: 0, 
-                isAdult: false 
-            },
-            { 
-                id: 9, 
-                name: 'Technology', 
-                nameEn: 'Technology',
-                icon: 'fas fa-laptop-code', 
-                description: 'Discover the latest in tech and innovation',
-                descriptionEn: 'Discover the latest in tech and innovation',
-                image: null, 
-                count: 0, 
-                isAdult: false 
-            },
-            { 
-                id: 10, 
-                name: 'Health', 
-                nameEn: 'Health',
-                icon: 'fas fa-heartbeat', 
-                description: 'Information about health, wellness and medicine',
-                descriptionEn: 'Information about health, wellness and medicine',
-                image: null, 
-                count: 0, 
-                isAdult: false 
-            },
-            { 
-                id: 11, 
-                name: 'Travel', 
-                nameEn: 'Travel',
-                icon: 'fas fa-plane', 
-                description: 'Plan your trips and discover new destinations',
-                descriptionEn: 'Plan your trips and discover new destinations',
-                image: null, 
-                count: 0, 
-                isAdult: false 
-            },
-            { 
-                id: 12, 
-                name: 'Food', 
-                nameEn: 'Food',
-                icon: 'fas fa-utensils', 
-                description: 'Recipes, restaurants and culinary experiences',
-                descriptionEn: 'Recipes, restaurants and culinary experiences',
-                image: null, 
-                count: 0, 
-                isAdult: false 
-            },
-            { 
-                id: 13, 
-                name: 'Sports', 
-                nameEn: 'Sports',
-                icon: 'fas fa-running', 
-                description: 'Follow your favorite sports and athletes',
-                descriptionEn: 'Follow your favorite sports and athletes',
-                image: null, 
-                count: 0, 
-                isAdult: false 
-            },
-            { 
-                id: 14, 
-                name: 'Finance', 
-                nameEn: 'Finance',
-                icon: 'fas fa-chart-line', 
-                description: 'Manage your money and investments',
-                descriptionEn: 'Manage your money and investments',
-                image: null, 
-                count: 0, 
-                isAdult: false 
-            },
-            { 
-                id: 15, 
-                name: 'Art', 
-                nameEn: 'Art',
-                icon: 'fas fa-palette', 
-                description: 'Explore visual arts, design and creativity',
-                descriptionEn: 'Explore visual arts, design and creativity',
-                image: null, 
-                count: 0, 
-                isAdult: false 
-            },
-            { 
-                id: 16, 
-                name: 'Books', 
-                nameEn: 'Books',
-                icon: 'fas fa-book', 
-                description: 'Discover books, authors and literary works',
-                descriptionEn: 'Discover books, authors and literary works',
-                image: null, 
-                count: 0, 
-                isAdult: false 
-            },
-            { 
-                id: 17, 
-                name: 'Movies', 
-                nameEn: 'Movies',
-                icon: 'fas fa-film', 
-                description: 'Watch movies, series and documentaries',
-                descriptionEn: 'Watch movies, series and documentaries',
-                image: null, 
-                count: 0, 
-                isAdult: false 
-            },
-            { 
-                id: 18, 
-                name: 'Photography', 
-                nameEn: 'Photography',
-                icon: 'fas fa-camera', 
-                description: 'Learn photography techniques and showcase your work',
-                descriptionEn: 'Learn photography techniques and showcase your work',
-                image: null, 
-                count: 0, 
-                isAdult: false 
-            },
-            { 
-                id: 19, 
-                name: 'Science', 
-                nameEn: 'Science',
-                icon: 'fas fa-flask', 
-                description: 'Explore scientific discoveries and research',
-                descriptionEn: 'Explore scientific discoveries and research',
-                image: null, 
-                count: 0, 
-                isAdult: false 
-            },
-            { 
-                id: 20, 
-                name: 'History', 
-                nameEn: 'History',
-                icon: 'fas fa-landmark', 
-                description: 'Learn about historical events and civilizations',
-                descriptionEn: 'Learn about historical events and civilizations',
-                image: null, 
-                count: 0, 
-                isAdult: false 
-            },
-            { 
-                id: 21, 
-                name: 'Nature', 
-                nameEn: 'Nature',
-                icon: 'fas fa-tree', 
-                description: 'Explore the natural world and conservation',
-                descriptionEn: 'Explore the natural world and conservation',
-                image: null, 
-                count: 0, 
-                isAdult: false 
-            },
-            { 
-                id: 22, 
-                name: 'DIY & Crafts', 
-                nameEn: 'DIY & Crafts',
-                icon: 'fas fa-tools', 
-                description: 'Do-it-yourself projects and creative crafts',
-                descriptionEn: 'Do-it-yourself projects and creative crafts',
-                image: null, 
-                count: 0, 
-                isAdult: false 
-            },
-            { 
-                id: 23, 
-                name: 'Pets', 
-                nameEn: 'Pets',
-                icon: 'fas fa-paw', 
-                description: 'Care for your pets and discover animal content',
-                descriptionEn: 'Care for your pets and discover animal content',
-                image: null, 
-                count: 0, 
-                isAdult: false 
-            },
-            { 
-                id: 24, 
-                name: 'Fashion', 
-                nameEn: 'Fashion',
-                icon: 'fas fa-tshirt', 
-                description: 'Discover fashion trends and style inspiration',
-                descriptionEn: 'Discover fashion trends and style inspiration',
-                image: null, 
-                count: 0, 
-                isAdult: false 
-            },
-            { 
-                id: 25, 
-                name: 'Beauty', 
-                nameEn: 'Beauty',
-                icon: 'fas fa-spa', 
-                description: 'Beauty tips, products and tutorials',
-                descriptionEn: 'Beauty tips, products and tutorials',
-                image: null, 
-                count: 0, 
-                isAdult: false 
-            },
-            { 
-                id: 26, 
-                name: 'Home & Garden', 
-                nameEn: 'Home & Garden',
-                icon: 'fas fa-home', 
-                description: 'Home improvement, decoration and gardening',
-                descriptionEn: 'Home improvement, decoration and gardening',
-                image: null, 
-                count: 0, 
-                isAdult: false 
-            },
-            { 
-                id: 27, 
-                name: 'Business', 
-                nameEn: 'Business',
-                icon: 'fas fa-briefcase', 
-                description: 'Business news, entrepreneurship and management',
-                descriptionEn: 'Business news, entrepreneurship and management',
-                image: null, 
-                count: 0, 
-                isAdult: false 
-            },
-            { 
-                id: 28, 
-                name: 'Cars', 
-                nameEn: 'Cars',
-                icon: 'fas fa-car', 
-                description: 'Automotive news, reviews and maintenance',
-                descriptionEn: 'Automotive news, reviews and maintenance',
-                image: null, 
-                count: 0, 
-                isAdult: false 
-            },
-            { 
-                id: 29, 
-                name: 'Parenting', 
-                nameEn: 'Parenting',
-                icon: 'fas fa-baby', 
-                description: 'Advice and resources for parents and families',
-                descriptionEn: 'Advice and resources for parents and families',
-                image: null, 
-                count: 0, 
-                isAdult: false 
-            },
-            { 
-                id: 30, 
-                name: 'Spirituality', 
-                nameEn: 'Spirituality',
-                icon: 'fas fa-pray', 
-                description: 'Explore spiritual practices and beliefs',
-                descriptionEn: 'Explore spiritual practices and beliefs',
-                image: null, 
-                count: 0, 
-                isAdult: false 
-            }
-        ];
-
-        let subcategories = JSON.parse(localStorage.getItem('subcategories')) || [
-            // Subcategories for Videos
-            { id: 1, categoryId: 1, name: 'YouTube Channels', nameEn: 'YouTube Channels', icon: 'fab fa-youtube', description: 'Best YouTube channels in various niches', descriptionEn: 'Best YouTube channels in various niches' },
-            { id: 2, categoryId: 1, name: 'TikTok Videos', nameEn: 'TikTok Videos', icon: 'fab fa-tiktok', description: 'Trending TikTok videos and creators', descriptionEn: 'Trending TikTok videos and creators' },
-            { id: 3, categoryId: 1, name: 'Educational Videos', nameEn: 'Educational Videos', icon: 'fas fa-chalkboard-teacher', description: 'Videos for learning and knowledge', descriptionEn: 'Videos for learning and knowledge' },
-            { id: 4, categoryId: 1, name: 'Entertainment Videos', nameEn: 'Entertainment Videos', icon: 'fas fa-film', description: 'Funny, entertaining and viral videos', descriptionEn: 'Funny, entertaining and viral videos' },
-            
-            // Subcategories for Social Media
-            { id: 5, categoryId: 2, name: 'Instagram Profiles', nameEn: 'Instagram Profiles', icon: 'fab fa-instagram', description: 'Popular Instagram accounts to follow', descriptionEn: 'Popular Instagram accounts to follow' },
-            { id: 6, categoryId: 2, name: 'Facebook Pages', nameEn: 'Facebook Pages', icon: 'fab fa-facebook', description: 'Interesting Facebook pages and groups', descriptionEn: 'Interesting Facebook pages and groups' },
-            { id: 7, categoryId: 2, name: 'Twitter Accounts', nameEn: 'Twitter Accounts', icon: 'fab fa-twitter', description: 'Influential Twitter accounts to follow', descriptionEn: 'Influential Twitter accounts to follow' },
-            { id: 8, categoryId: 2, name: 'LinkedIn Profiles', nameEn: 'LinkedIn Profiles', icon: 'fab fa-linkedin', description: 'Professional LinkedIn profiles and pages', descriptionEn: 'Professional LinkedIn profiles and pages' },
-            
-            // Subcategories for Music
-            { id: 9, categoryId: 3, name: 'Spotify Playlists', nameEn: 'Spotify Playlists', icon: 'fab fa-spotify', description: 'Curated music playlists for every mood', descriptionEn: 'Curated music playlists for every mood' },
-            { id: 10, categoryId: 3, name: 'Music Artists', nameEn: 'Music Artists', icon: 'fas fa-microphone', description: 'Popular and emerging music artists', descriptionEn: 'Popular and emerging music artists' },
-            { id: 11, categoryId: 3, name: 'Music Genres', nameEn: 'Music Genres', icon: 'fas fa-music', description: 'Explore different music genres', descriptionEn: 'Explore different music genres' },
-            { id: 12, categoryId: 3, name: 'Music Videos', nameEn: 'Music Videos', icon: 'fas fa-video', description: 'Official music videos and performances', descriptionEn: 'Official music videos and performances' },
-            
-            // Subcategories for Education
-            { id: 13, categoryId: 4, name: 'Online Courses', nameEn: 'Online Courses', icon: 'fas fa-laptop', description: 'Platforms and courses for online learning', descriptionEn: 'Platforms and courses for online learning' },
-            { id: 14, categoryId: 4, name: 'Tutorials', nameEn: 'Tutorials', icon: 'fas fa-book-open', description: 'Step-by-step tutorials for various skills', descriptionEn: 'Step-by-step tutorials for various skills' },
-            { id: 15, categoryId: 4, name: 'Educational Websites', nameEn: 'Educational Websites', icon: 'fas fa-globe', description: 'Websites with educational content', descriptionEn: 'Websites with educational content' },
-            { id: 16, categoryId: 4, name: 'Language Learning', nameEn: 'Language Learning', icon: 'fas fa-language', description: 'Resources for learning new languages', descriptionEn: 'Resources for learning new languages' },
-            
-            // Subcategories for Adult Content
-            { id: 17, categoryId: 7, name: 'Adult Videos', nameEn: 'Adult Videos', icon: 'fas fa-video', description: 'Adult video content platforms', descriptionEn: 'Adult video content platforms' },
-            { id: 18, categoryId: 7, name: 'Adult Websites', nameEn: 'Adult Websites', icon: 'fas fa-globe', description: 'Websites with adult content', descriptionEn: 'Websites with adult content' },
-            { id: 19, categoryId: 7, name: 'Adult Social Networks', nameEn: 'Adult Social Networks', icon: 'fas fa-users', description: 'Social networks for adults', descriptionEn: 'Social networks for adults' },
-            
-            // Subcategories for Games
-            { id: 20, categoryId: 8, name: 'Online Games', nameEn: 'Online Games', icon: 'fas fa-gamepad', description: 'Play games directly in your browser', descriptionEn: 'Play games directly in your browser' },
-            { id: 21, categoryId: 8, name: 'Game Reviews', nameEn: 'Game Reviews', icon: 'fas fa-star', description: 'Reviews and ratings of popular games', descriptionEn: 'Reviews and ratings of popular games' },
-            { id: 22, categoryId: 8, name: 'Gaming Communities', nameEn: 'Gaming Communities', icon: 'fas fa-users', description: 'Online communities for gamers', descriptionEn: 'Online communities for gamers' },
-            { id: 23, categoryId: 8, name: 'Game Development', nameEn: 'Game Development', icon: 'fas fa-code', description: 'Resources for game developers', descriptionEn: 'Resources for game developers' }
-        ];
-
-        let links = JSON.parse(localStorage.getItem('links')) || [
-            // Featured links
-            { 
-                id: 1, 
-                title: 'YouTube - Music Videos', 
-                url: 'https://youtube.com', 
-                description: 'Watch the latest music videos from your favorite artists', 
-                categoryId: 1, 
-                subcategoryId: 1, 
-                icon: 'fab fa-youtube', 
-                type: 'youtube', 
-                isFeatured: true 
-            },
-            { 
-                id: 2, 
-                title: 'Instagram - Photography', 
-                url: 'https://instagram.com', 
-                description: 'Share your photos and connect with others', 
-                categoryId: 2, 
-                subcategoryId: 5, 
-                icon: 'fab fa-instagram', 
-                type: 'instagram', 
-                isFeatured: true 
-            },
-            { 
-                id: 3, 
-                title: 'Spotify - Top Charts', 
-                url: 'https://spotify.com', 
-                description: 'Listen to the most popular songs right now', 
-                categoryId: 3, 
-                subcategoryId: 9, 
-                icon: 'fab fa-spotify', 
-                type: 'spotify', 
-                isFeatured: true 
-            },
-            { 
-                id: 4, 
-                title: 'Coursera - Online Learning', 
-                url: 'https://coursera.org', 
-                description: 'Take online courses from top universities', 
-                categoryId: 4, 
-                subcategoryId: 13, 
-                icon: 'fas fa-graduation-cap', 
-                type: 'website', 
-                isFeatured: true 
-            },
-            { 
-                id: 5, 
-                title: 'BBC News - World', 
-                url: 'https://bbc.com/news', 
-                description: 'Latest world news and current affairs', 
-                categoryId: 5, 
-                subcategoryId: null, 
-                icon: 'fas fa-newspaper', 
-                type: 'website', 
-                isFeatured: true 
-            },
-            { 
-                id: 6, 
-                title: 'Amazon - Shopping', 
-                url: 'https://amazon.com', 
-                description: 'Shop for millions of products online', 
-                categoryId: 6, 
-                subcategoryId: null, 
-                icon: 'fas fa-shopping-cart', 
-                type: 'website', 
-                isFeatured: true 
-            }
-        ];
+        let categories = [];
+        let subcategories = [];
+        let links = [];
 
         // App state
         let currentLanguage = 'en';
@@ -1559,6 +1123,9 @@
         });
 
         function initializeApp() {
+            // Initialize data first
+            initializeData();
+            
             // Show temporary warning banner
             showWarningBanner();
             
@@ -1579,6 +1146,477 @@
                 setTimeout(() => {
                     document.getElementById('cookieBanner').style.display = 'block';
                 }, 3000);
+            }
+        }
+
+        function initializeData() {
+            // Check if data exists in localStorage, if not initialize with default data
+            const storedCategories = localStorage.getItem('categories');
+            const storedSubcategories = localStorage.getItem('subcategories');
+            const storedLinks = localStorage.getItem('links');
+
+            if (!storedCategories) {
+                // Initialize with default categories
+                categories = [
+                    { 
+                        id: 1, 
+                        name: 'Vídeos', 
+                        nameEn: 'Videos',
+                        icon: 'fas fa-video', 
+                        description: 'Assista e descubra vídeos de várias plataformas',
+                        descriptionEn: 'Watch and discover videos from various platforms',
+                        image: null, 
+                        count: 0, 
+                        isAdult: false 
+                    },
+                    { 
+                        id: 2, 
+                        name: 'Redes Sociais', 
+                        nameEn: 'Social Media',
+                        icon: 'fas fa-share-alt', 
+                        description: 'Conecte-se com pessoas e compartilhe conteúdo',
+                        descriptionEn: 'Connect with people and share content',
+                        image: null, 
+                        count: 0, 
+                        isAdult: false 
+                    },
+                    { 
+                        id: 3, 
+                        name: 'Música', 
+                        nameEn: 'Music',
+                        icon: 'fas fa-music', 
+                        description: 'Ouça músicas, descubra artistas e playlists',
+                        descriptionEn: 'Listen to music, discover artists and playlists',
+                        image: null, 
+                        count: 0, 
+                        isAdult: false 
+                    },
+                    { 
+                        id: 4, 
+                        name: 'Educação', 
+                        nameEn: 'Education',
+                        icon: 'fas fa-graduation-cap', 
+                        description: 'Aprenda novas habilidades e expanda seu conhecimento',
+                        descriptionEn: 'Learn new skills and expand your knowledge',
+                        image: null, 
+                        count: 0, 
+                        isAdult: false 
+                    },
+                    { 
+                        id: 5, 
+                        name: 'Notícias', 
+                        nameEn: 'News',
+                        icon: 'fas fa-newspaper', 
+                        description: 'Mantenha-se atualizado com as últimas notícias e eventos',
+                        descriptionEn: 'Stay updated with the latest news and events',
+                        image: null, 
+                        count: 0, 
+                        isAdult: false 
+                    },
+                    { 
+                        id: 6, 
+                        name: 'Compras', 
+                        nameEn: 'Shopping',
+                        icon: 'fas fa-shopping-cart', 
+                        description: 'Encontre os melhores negócios e produtos online',
+                        descriptionEn: 'Find the best deals and products online',
+                        image: null, 
+                        count: 0, 
+                        isAdult: false 
+                    },
+                    { 
+                        id: 7, 
+                        name: 'Conteúdo Adulto', 
+                        nameEn: 'Adult Content',
+                        icon: 'fas fa-exclamation-triangle', 
+                        description: 'Conteúdo restrito a adultos maiores de 18 anos',
+                        descriptionEn: 'Content restricted to adults over 18 years',
+                        image: null, 
+                        count: 0, 
+                        isAdult: true 
+                    },
+                    { 
+                        id: 8, 
+                        name: 'Jogos', 
+                        nameEn: 'Games',
+                        icon: 'fas fa-gamepad', 
+                        description: 'Jogue online e descubra novos títulos',
+                        descriptionEn: 'Play online games and discover new titles',
+                        image: null, 
+                        count: 0, 
+                        isAdult: false 
+                    },
+                    { 
+                        id: 9, 
+                        name: 'Tecnologia', 
+                        nameEn: 'Technology',
+                        icon: 'fas fa-laptop-code', 
+                        description: 'Descubra as últimas novidades em tecnologia',
+                        descriptionEn: 'Discover the latest in tech and innovation',
+                        image: null, 
+                        count: 0, 
+                        isAdult: false 
+                    },
+                    { 
+                        id: 10, 
+                        name: 'Saúde', 
+                        nameEn: 'Health',
+                        icon: 'fas fa-heartbeat', 
+                        description: 'Informações sobre saúde, bem-estar e medicina',
+                        descriptionEn: 'Information about health, wellness and medicine',
+                        image: null, 
+                        count: 0, 
+                        isAdult: false 
+                    },
+                    { 
+                        id: 11, 
+                        name: 'Viagem', 
+                        nameEn: 'Travel',
+                        icon: 'fas fa-plane', 
+                        description: 'Planeje suas viagens e descubra novos destinos',
+                        descriptionEn: 'Plan your trips and discover new destinations',
+                        image: null, 
+                        count: 0, 
+                        isAdult: false 
+                    },
+                    { 
+                        id: 12, 
+                        name: 'Comida', 
+                        nameEn: 'Food',
+                        icon: 'fas fa-utensils', 
+                        description: 'Receitas, restaurantes e experiências culinárias',
+                        descriptionEn: 'Recipes, restaurants and culinary experiences',
+                        image: null, 
+                        count: 0, 
+                        isAdult: false 
+                    },
+                    { 
+                        id: 13, 
+                        name: 'Esportes', 
+                        nameEn: 'Sports',
+                        icon: 'fas fa-running', 
+                        description: 'Acompanhe seus esportes e atletas favoritos',
+                        descriptionEn: 'Follow your favorite sports and athletes',
+                        image: null, 
+                        count: 0, 
+                        isAdult: false 
+                    },
+                    { 
+                        id: 14, 
+                        name: 'Finanças', 
+                        nameEn: 'Finance',
+                        icon: 'fas fa-chart-line', 
+                        description: 'Gerencie seu dinheiro e investimentos',
+                        descriptionEn: 'Manage your money and investments',
+                        image: null, 
+                        count: 0, 
+                        isAdult: false 
+                    },
+                    { 
+                        id: 15, 
+                        name: 'Arte', 
+                        nameEn: 'Art',
+                        icon: 'fas fa-palette', 
+                        description: 'Explore artes visuais, design e criatividade',
+                        descriptionEn: 'Explore visual arts, design and creativity',
+                        image: null, 
+                        count: 0, 
+                        isAdult: false 
+                    },
+                    { 
+                        id: 16, 
+                        name: 'Livros', 
+                        nameEn: 'Books',
+                        icon: 'fas fa-book', 
+                        description: 'Descubra livros, autores e obras literárias',
+                        descriptionEn: 'Discover books, authors and literary works',
+                        image: null, 
+                        count: 0, 
+                        isAdult: false 
+                    },
+                    { 
+                        id: 17, 
+                        name: 'Filmes', 
+                        nameEn: 'Movies',
+                        icon: 'fas fa-film', 
+                        description: 'Assista filmes, séries e documentários',
+                        descriptionEn: 'Watch movies, series and documentaries',
+                        image: null, 
+                        count: 0, 
+                        isAdult: false 
+                    },
+                    { 
+                        id: 18, 
+                        name: 'Fotografia', 
+                        nameEn: 'Photography',
+                        icon: 'fas fa-camera', 
+                        description: 'Aprenda técnicas e mostre seu trabalho',
+                        descriptionEn: 'Learn photography techniques and showcase your work',
+                        image: null, 
+                        count: 0, 
+                        isAdult: false 
+                    },
+                    { 
+                        id: 19, 
+                        name: 'Ciência', 
+                        nameEn: 'Science',
+                        icon: 'fas fa-flask', 
+                        description: 'Explore descobertas científicas e pesquisas',
+                        descriptionEn: 'Explore scientific discoveries and research',
+                        image: null, 
+                        count: 0, 
+                        isAdult: false 
+                    },
+                    { 
+                        id: 20, 
+                        name: 'História', 
+                        nameEn: 'History',
+                        icon: 'fas fa-landmark', 
+                        description: 'Aprenda sobre eventos históricos e civilizações',
+                        descriptionEn: 'Learn about historical events and civilizations',
+                        image: null, 
+                        count: 0, 
+                        isAdult: false 
+                    },
+                    { 
+                        id: 21, 
+                        name: 'Natureza', 
+                        nameEn: 'Nature',
+                        icon: 'fas fa-tree', 
+                        description: 'Explore o mundo natural e conservação',
+                        descriptionEn: 'Explore the natural world and conservation',
+                        image: null, 
+                        count: 0, 
+                        isAdult: false 
+                    },
+                    { 
+                        id: 22, 
+                        name: 'DIY & Artesanato', 
+                        nameEn: 'DIY & Crafts',
+                        icon: 'fas fa-tools', 
+                        description: 'Projetos faça você mesmo e artesanato criativo',
+                        descriptionEn: 'Do-it-yourself projects and creative crafts',
+                        image: null, 
+                        count: 0, 
+                        isAdult: false 
+                    },
+                    { 
+                        id: 23, 
+                        name: 'Animais', 
+                        nameEn: 'Pets',
+                        icon: 'fas fa-paw', 
+                        description: 'Cuide dos seus pets e descubra conteúdo animal',
+                        descriptionEn: 'Care for your pets and discover animal content',
+                        image: null, 
+                        count: 0, 
+                        isAdult: false 
+                    },
+                    { 
+                        id: 24, 
+                        name: 'Moda', 
+                        nameEn: 'Fashion',
+                        icon: 'fas fa-tshirt', 
+                        description: 'Descubra tendências de moda e inspiração de estilo',
+                        descriptionEn: 'Discover fashion trends and style inspiration',
+                        image: null, 
+                        count: 0, 
+                        isAdult: false 
+                    },
+                    { 
+                        id: 25, 
+                        name: 'Beleza', 
+                        nameEn: 'Beauty',
+                        icon: 'fas fa-spa', 
+                        description: 'Dicas de beleza, produtos e tutoriais',
+                        descriptionEn: 'Beauty tips, products and tutorials',
+                        image: null, 
+                        count: 0, 
+                        isAdult: false 
+                    },
+                    { 
+                        id: 26, 
+                        name: 'Casa & Jardim', 
+                        nameEn: 'Home & Garden',
+                        icon: 'fas fa-home', 
+                        description: 'Melhorias para casa, decoração e jardinagem',
+                        descriptionEn: 'Home improvement, decoration and gardening',
+                        image: null, 
+                        count: 0, 
+                        isAdult: false 
+                    },
+                    { 
+                        id: 27, 
+                        name: 'Negócios', 
+                        nameEn: 'Business',
+                        icon: 'fas fa-briefcase', 
+                        description: 'Notícias de negócios, empreendedorismo e gestão',
+                        descriptionEn: 'Business news, entrepreneurship and management',
+                        image: null, 
+                        count: 0, 
+                        isAdult: false 
+                    },
+                    { 
+                        id: 28, 
+                        name: 'Carros', 
+                        nameEn: 'Cars',
+                        icon: 'fas fa-car', 
+                        description: 'Notícias automotivas, reviews e manutenção',
+                        descriptionEn: 'Automotive news, reviews and maintenance',
+                        image: null, 
+                        count: 0, 
+                        isAdult: false 
+                    },
+                    { 
+                        id: 29, 
+                        name: 'Parentalidade', 
+                        nameEn: 'Parenting',
+                        icon: 'fas fa-baby', 
+                        description: 'Conselhos e recursos para pais e famílias',
+                        descriptionEn: 'Advice and resources for parents and families',
+                        image: null, 
+                        count: 0, 
+                        isAdult: false 
+                    },
+                    { 
+                        id: 30, 
+                        name: 'Espiritualidade', 
+                        nameEn: 'Spirituality',
+                        icon: 'fas fa-pray', 
+                        description: 'Explore práticas espirituais e crenças',
+                        descriptionEn: 'Explore spiritual practices and beliefs',
+                        image: null, 
+                        count: 0, 
+                        isAdult: false 
+                    }
+                ];
+                
+                // Save to localStorage
+                localStorage.setItem('categories', JSON.stringify(categories));
+            } else {
+                categories = JSON.parse(storedCategories);
+            }
+
+            if (!storedSubcategories) {
+                // Initialize with default subcategories
+                subcategories = [
+                    // Subcategories for Videos
+                    { id: 1, categoryId: 1, name: 'Canais do YouTube', nameEn: 'YouTube Channels', icon: 'fab fa-youtube', description: 'Melhores canais do YouTube em vários nichos', descriptionEn: 'Best YouTube channels in various niches' },
+                    { id: 2, categoryId: 1, name: 'Vídeos do TikTok', nameEn: 'TikTok Videos', icon: 'fab fa-tiktok', description: 'Vídeos e criadores em tendência no TikTok', descriptionEn: 'Trending TikTok videos and creators' },
+                    { id: 3, categoryId: 1, name: 'Vídeos Educacionais', nameEn: 'Educational Videos', icon: 'fas fa-chalkboard-teacher', description: 'Vídeos para aprendizado e conhecimento', descriptionEn: 'Videos for learning and knowledge' },
+                    { id: 4, categoryId: 1, name: 'Vídeos de Entretenimento', nameEn: 'Entertainment Videos', icon: 'fas fa-film', description: 'Vídeos engraçados, divertidos e virais', descriptionEn: 'Funny, entertaining and viral videos' },
+                    
+                    // Subcategories for Social Media
+                    { id: 5, categoryId: 2, name: 'Perfis do Instagram', nameEn: 'Instagram Profiles', icon: 'fab fa-instagram', description: 'Contas populares do Instagram para seguir', descriptionEn: 'Popular Instagram accounts to follow' },
+                    { id: 6, categoryId: 2, name: 'Páginas do Facebook', nameEn: 'Facebook Pages', icon: 'fab fa-facebook', description: 'Páginas e grupos interessantes do Facebook', descriptionEn: 'Interesting Facebook pages and groups' },
+                    { id: 7, categoryId: 2, name: 'Contas do Twitter', nameEn: 'Twitter Accounts', icon: 'fab fa-twitter', description: 'Contas influentes do Twitter para seguir', descriptionEn: 'Influential Twitter accounts to follow' },
+                    { id: 8, categoryId: 2, name: 'Perfis do LinkedIn', nameEn: 'LinkedIn Profiles', icon: 'fab fa-linkedin', description: 'Perfis e páginas profissionais do LinkedIn', descriptionEn: 'Professional LinkedIn profiles and pages' },
+                    
+                    // Subcategories for Music
+                    { id: 9, categoryId: 3, name: 'Playlists do Spotify', nameEn: 'Spotify Playlists', icon: 'fab fa-spotify', description: 'Playlists de música curadas para cada humor', descriptionEn: 'Curated music playlists for every mood' },
+                    { id: 10, categoryId: 3, name: 'Artistas Musicais', nameEn: 'Music Artists', icon: 'fas fa-microphone', description: 'Artistas musicais populares e emergentes', descriptionEn: 'Popular and emerging music artists' },
+                    { id: 11, categoryId: 3, name: 'Gêneros Musicais', nameEn: 'Music Genres', icon: 'fas fa-music', description: 'Explore diferentes gêneros musicais', descriptionEn: 'Explore different music genres' },
+                    { id: 12, categoryId: 3, name: 'Vídeos Musicais', nameEn: 'Music Videos', icon: 'fas fa-video', description: 'Vídeos musicais oficiais e performances', descriptionEn: 'Official music videos and performances' },
+                    
+                    // Subcategories for Education
+                    { id: 13, categoryId: 4, name: 'Cursos Online', nameEn: 'Online Courses', icon: 'fas fa-laptop', description: 'Plataformas e cursos para aprendizado online', descriptionEn: 'Platforms and courses for online learning' },
+                    { id: 14, categoryId: 4, name: 'Tutoriais', nameEn: 'Tutorials', icon: 'fas fa-book-open', description: 'Tutoriais passo a passo para várias habilidades', descriptionEn: 'Step-by-step tutorials for various skills' },
+                    { id: 15, categoryId: 4, name: 'Sites Educacionais', nameEn: 'Educational Websites', icon: 'fas fa-globe', description: 'Sites com conteúdo educacional', descriptionEn: 'Websites with educational content' },
+                    { id: 16, categoryId: 4, name: 'Aprendizado de Idiomas', nameEn: 'Language Learning', icon: 'fas fa-language', description: 'Recursos para aprender novos idiomas', descriptionEn: 'Resources for learning new languages' },
+                    
+                    // Subcategories for Adult Content
+                    { id: 17, categoryId: 7, name: 'Vídeos Adultos', nameEn: 'Adult Videos', icon: 'fas fa-video', description: 'Plataformas de conteúdo de vídeo adulto', descriptionEn: 'Adult video content platforms' },
+                    { id: 18, categoryId: 7, name: 'Sites Adultos', nameEn: 'Adult Websites', icon: 'fas fa-globe', description: 'Sites com conteúdo adulto', descriptionEn: 'Websites with adult content' },
+                    { id: 19, categoryId: 7, name: 'Redes Sociais Adultas', nameEn: 'Adult Social Networks', icon: 'fas fa-users', description: 'Redes sociais para adultos', descriptionEn: 'Social networks for adults' },
+                    
+                    // Subcategories for Games
+                    { id: 20, categoryId: 8, name: 'Jogos Online', nameEn: 'Online Games', icon: 'fas fa-gamepad', description: 'Jogue diretamente no seu navegador', descriptionEn: 'Play games directly in your browser' },
+                    { id: 21, categoryId: 8, name: 'Reviews de Jogos', nameEn: 'Game Reviews', icon: 'fas fa-star', description: 'Reviews e avaliações de jogos populares', descriptionEn: 'Reviews and ratings of popular games' },
+                    { id: 22, categoryId: 8, name: 'Comunidades de Jogos', nameEn: 'Gaming Communities', icon: 'fas fa-users', description: 'Comunidades online para gamers', descriptionEn: 'Online communities for gamers' },
+                    { id: 23, categoryId: 8, name: 'Desenvolvimento de Jogos', nameEn: 'Game Development', icon: 'fas fa-code', description: 'Recursos para desenvolvedores de jogos', descriptionEn: 'Resources for game developers' }
+                ];
+                
+                // Save to localStorage
+                localStorage.setItem('subcategories', JSON.stringify(subcategories));
+            } else {
+                subcategories = JSON.parse(storedSubcategories);
+            }
+
+            if (!storedLinks) {
+                // Initialize with default links
+                links = [
+                    // Featured links
+                    { 
+                        id: 1, 
+                        title: 'YouTube - Music Videos', 
+                        url: 'https://youtube.com', 
+                        description: 'Watch the latest music videos from your favorite artists', 
+                        categoryId: 1, 
+                        subcategoryId: 1, 
+                        icon: 'fab fa-youtube', 
+                        type: 'youtube', 
+                        isFeatured: true 
+                    },
+                    { 
+                        id: 2, 
+                        title: 'Instagram - Photography', 
+                        url: 'https://instagram.com', 
+                        description: 'Share your photos and connect with others', 
+                        categoryId: 2, 
+                        subcategoryId: 5, 
+                        icon: 'fab fa-instagram', 
+                        type: 'instagram', 
+                        isFeatured: true 
+                    },
+                    { 
+                        id: 3, 
+                        title: 'Spotify - Top Charts', 
+                        url: 'https://spotify.com', 
+                        description: 'Listen to the most popular songs right now', 
+                        categoryId: 3, 
+                        subcategoryId: 9, 
+                        icon: 'fab fa-spotify', 
+                        type: 'spotify', 
+                        isFeatured: true 
+                    },
+                    { 
+                        id: 4, 
+                        title: 'Coursera - Online Learning', 
+                        url: 'https://coursera.org', 
+                        description: 'Take online courses from top universities', 
+                        categoryId: 4, 
+                        subcategoryId: 13, 
+                        icon: 'fas fa-graduation-cap', 
+                        type: 'website', 
+                        isFeatured: true 
+                    },
+                    { 
+                        id: 5, 
+                        title: 'BBC News - World', 
+                        url: 'https://bbc.com/news', 
+                        description: 'Latest world news and current affairs', 
+                        categoryId: 5, 
+                        subcategoryId: null, 
+                        icon: 'fas fa-newspaper', 
+                        type: 'website', 
+                        isFeatured: true 
+                    },
+                    { 
+                        id: 6, 
+                        title: 'Amazon - Shopping', 
+                        url: 'https://amazon.com', 
+                        description: 'Shop for millions of products online', 
+                        categoryId: 6, 
+                        subcategoryId: null, 
+                        icon: 'fas fa-shopping-cart', 
+                        type: 'website', 
+                        isFeatured: true 
+                    }
+                ];
+                
+                // Save to localStorage
+                localStorage.setItem('links', JSON.stringify(links));
+            } else {
+                links = JSON.parse(storedLinks);
             }
         }
 
