@@ -4,6 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LinkCatalog - Find What You Need</title>
+    
+    <!-- Meta Tags para SEO -->
+    <meta name="description" content="LinkCatalog é um diretório abrangente dos melhores links da internet, cuidadosamente selecionados e organizados para fácil descoberta.">
+    <meta name="keywords" content="links, categorias, diretório, internet, sites, vídeos, redes sociais, música, educação, notícias, compras">
+    <meta name="author" content="Amisse Momade">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="LinkCatalog - Find What You Need">
+    <meta property="og:description" content="Descubra os melhores links organizados por categoria">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.linkscatalog.work.gd">
+    
+    <!-- Link Canônico -->
+    <link rel="canonical" href="https://www.linkscatalog.work.gd">
+    
     <style>
         :root {
             --primary: #667eea;
@@ -507,6 +523,7 @@
 
         .category-card:hover {
             box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+            transform: translateY(-2px);
         }
 
         .category-card.adult {
@@ -547,15 +564,16 @@
         }
 
         .category-description {
-            color: var(--text-light);
-            font-size: 0.75rem;
+            color: var(--text-dark);
+            font-size: 0.85rem;
             margin-top: 5px;
-            line-height: 1.3;
-            height: 35px;
+            line-height: 1.4;
+            height: 40px;
             overflow: hidden;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
+            font-weight: 400;
         }
 
         /* Show More/Less Button */
@@ -706,10 +724,11 @@
         }
 
         .link-description {
-            color: var(--text-light);
+            color: var(--text-dark);
             margin-bottom: 10px;
-            line-height: 1.3;
-            font-size: 0.8rem;
+            line-height: 1.4;
+            font-size: 0.85rem;
+            font-weight: 400;
         }
 
         .link-meta {
@@ -723,9 +742,9 @@
 
         .link-category {
             background: #ecf0f1;
-            padding: 2px 8px;
+            padding: 4px 10px;
             border-radius: 12px;
-            font-size: 0.65rem;
+            font-size: 0.7rem;
             font-weight: 600;
             color: var(--text-light);
         }
@@ -734,7 +753,7 @@
             background: var(--accent);
             color: var(--light);
             border: none;
-            padding: 5px 10px;
+            padding: 6px 12px;
             border-radius: 4px;
             cursor: pointer;
             font-size: 0.75rem;
@@ -750,60 +769,60 @@
 
         /* About Section */
         .about {
-            padding: 30px 20px;
+            padding: 40px 20px;
             background: #f8f9fa;
             text-align: center;
         }
 
         .about h2 {
-            font-size: 1.5rem;
-            margin-bottom: 12px;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
             color: var(--text-dark);
         }
 
         .about p {
-            max-width: 800px;
-            margin: 0 auto 15px;
+            max-width: 900px;
+            margin: 0 auto 20px;
             color: var(--text-dark);
-            font-size: 0.9rem;
-            line-height: 1.5;
+            font-size: 1rem;
+            line-height: 1.6;
             font-weight: 400;
         }
 
         .contact-info {
             background: var(--light);
-            padding: 15px;
+            padding: 20px;
             border-radius: 10px;
             box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-            max-width: 400px;
+            max-width: 500px;
             margin: 0 auto;
         }
 
         .contact-info h3 {
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             color: var(--text-dark);
-            font-size: 1.1rem;
+            font-size: 1.3rem;
         }
 
         .contact-info p {
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             color: var(--text-dark);
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             line-height: 1.4;
         }
 
         .whatsapp-contact {
             background: #25d366;
             color: white;
-            padding: 8px 12px;
+            padding: 10px 15px;
             border-radius: 20px;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            margin-top: 8px;
+            gap: 8px;
+            margin-top: 10px;
             transition: all 0.3s;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
         }
 
         .whatsapp-contact:hover {
@@ -864,6 +883,7 @@
 
         .subcategory-card:hover {
             box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+            transform: translateY(-2px);
         }
 
         .subcategory-icon {
@@ -884,15 +904,16 @@
         }
 
         .subcategory-description {
-            color: var(--text-light);
-            font-size: 0.7rem;
+            color: var(--text-dark);
+            font-size: 0.75rem;
             margin-top: 4px;
-            line-height: 1.2;
-            height: 30px;
+            line-height: 1.3;
+            height: 35px;
             overflow: hidden;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
+            font-weight: 400;
         }
 
         /* Responsive Design */
@@ -951,6 +972,18 @@
             .featured,
             .categories {
                 padding: 20px 15px;
+            }
+            
+            .about {
+                padding: 30px 15px;
+            }
+            
+            .about h2 {
+                font-size: 1.5rem;
+            }
+            
+            .about p {
+                font-size: 0.9rem;
             }
         }
 
@@ -1087,11 +1120,17 @@
 
         <!-- About Section -->
         <section class="about">
-            <h2 id="aboutTitle">About Us</h2>
+            <h2 id="aboutTitle">About LinkCatalog</h2>
             <p id="aboutText">LinkCatalog is a comprehensive directory of the best links on the internet, carefully curated and organized for easy discovery. Our mission is to help you find exactly what you're looking for without the hassle of endless searching.</p>
             
+            <p id="aboutText2">Founded with the vision of creating a centralized hub for quality online resources, LinkCatalog brings together websites, videos, social media profiles, and other valuable content from across the web. Each link is carefully reviewed and categorized to ensure you have access to the most relevant and reliable information.</p>
+            
+            <p id="aboutText3">Whether you're looking for educational resources, entertainment, news, or professional tools, LinkCatalog makes it easy to discover new content and revisit your favorites. Our user-friendly interface and powerful search functionality help you navigate through thousands of links with ease.</p>
+            
+            <p id="aboutText4">We're constantly updating our catalog with new links and categories to keep up with the ever-changing digital landscape. Our team works diligently to ensure that all content is current, relevant, and valuable to our users.</p>
+            
             <div class="contact-info">
-                <h3 id="contactTitle">Contact</h3>
+                <h3 id="contactTitle">Contact Us</h3>
                 <p><strong>Amisse Momade</strong></p>
                 <p id="contactEmail">Email: amissemomade125@gmail.com</p>
                 <p id="contactPhone">Phone: +258 86 890 1888</p>
@@ -1122,6 +1161,41 @@
         let currentCategory = null;
         let currentSubcategory = null;
         let searchTimeout = null;
+        let urlProcessed = false;
+
+        // URL parameter mapping
+        const urlToCategoryMap = {
+            'videos': 1,
+            'social-media': 2,
+            'music': 3,
+            'education': 4,
+            'news': 5,
+            'shopping': 6,
+            'adult-content': 7,
+            'games': 8,
+            'technology': 9,
+            'health': 10,
+            'travel': 11,
+            'food': 12,
+            'sports': 13,
+            'finance': 14,
+            'art': 15,
+            'books': 16,
+            'movies': 17,
+            'photography': 18,
+            'science': 19,
+            'history': 20,
+            'nature': 21,
+            'diy-crafts': 22,
+            'pets': 23,
+            'fashion': 24,
+            'beauty': 25,
+            'home-garden': 26,
+            'business': 27,
+            'cars': 28,
+            'parenting': 29,
+            'spirituality': 30
+        };
 
         // Initialize the app
         document.addEventListener('DOMContentLoaded', function() {
@@ -1135,6 +1209,12 @@
                     updateCounts();
                     loadCategories();
                     loadFeaturedLinks();
+                    
+                    // Check URL again after data update
+                    if (!urlProcessed) {
+                        processURL();
+                        urlProcessed = true;
+                    }
                 }
             });
         });
@@ -1158,12 +1238,59 @@
             // Setup search functionality
             setupSearch();
             
+            // Process URL parameters
+            processURL();
+            
             // Show cookie banner if not accepted
             if (!localStorage.getItem('cookiesAccepted')) {
                 setTimeout(() => {
                     document.getElementById('cookieBanner').style.display = 'block';
                 }, 3000);
             }
+        }
+
+        function processURL() {
+            // Check if URL has already been processed
+            if (urlProcessed) return;
+            
+            // Get current URL path
+            const path = window.location.pathname;
+            
+            // Extract category from URL
+            if (path && path !== '/' && path !== '/index.html') {
+                const urlCategory = path.substring(1).toLowerCase();
+                
+                // Check if it matches any category in our map
+                if (urlToCategoryMap.hasOwnProperty(urlCategory)) {
+                    const categoryId = urlToCategoryMap[urlCategory];
+                    const category = categories.find(cat => cat.id === categoryId);
+                    
+                    if (category) {
+                        // Open the category directly
+                        setTimeout(() => {
+                            openCategory(category);
+                            urlProcessed = true;
+                        }, 500);
+                    }
+                }
+            }
+            
+            urlProcessed = true;
+        }
+
+        function updateURL(category = null) {
+            let newURL = 'https://www.linkscatalog.work.gd';
+            
+            if (category) {
+                // Find the URL-friendly name for the category
+                const urlName = Object.keys(urlToCategoryMap).find(key => urlToCategoryMap[key] === category.id);
+                if (urlName) {
+                    newURL += '/' + urlName;
+                }
+            }
+            
+            // Update browser URL without reloading the page
+            window.history.pushState({}, '', newURL);
         }
 
         function initializeData() {
@@ -1176,6 +1303,8 @@
             if (storedCategories) {
                 try {
                     categories = JSON.parse(storedCategories);
+                    // Update URL mapping with new categories
+                    updateURLMapping();
                 } catch (e) {
                     console.error('Error parsing categories:', e);
                     loadDefaultCategories();
@@ -1218,6 +1347,17 @@
                 count: cat.count || 0,
                 isAdult: cat.isAdult || false
             }));
+        }
+
+        function updateURLMapping() {
+            // Update URL mapping with new categories
+            categories.forEach(category => {
+                if (!Object.values(urlToCategoryMap).includes(category.id)) {
+                    // Create URL-friendly name from category name
+                    const urlName = category.nameEn.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                    urlToCategoryMap[urlName] = category.id;
+                }
+            });
         }
 
         function loadDefaultCategories() {
@@ -1555,6 +1695,7 @@
             ];
             
             localStorage.setItem('categories', JSON.stringify(categories));
+            updateURLMapping();
         }
 
         function loadDefaultSubcategories() {
@@ -1734,9 +1875,12 @@
                     'subcategoriesTitle': 'Subcategorias',
                     'searchResultsText': 'Resultados da Pesquisa',
                     'featuredLinksText': 'Links em Destaque',
-                    'aboutTitle': 'Sobre Nós',
+                    'aboutTitle': 'Sobre o LinkCatalog',
                     'aboutText': 'LinkCatalog é um diretório abrangente dos melhores links da internet, cuidadosamente selecionados e organizados para fácil descoberta. Nossa missão é ajudá-lo a encontrar exatamente o que você está procurando sem o incômodo de pesquisas intermináveis.',
-                    'contactTitle': 'Contato',
+                    'aboutText2': 'Fundado com a visão de criar um hub centralizado para recursos online de qualidade, o LinkCatalog reúne sites, vídeos, perfis de redes sociais e outros conteúdos valiosos de toda a web. Cada link é cuidadosamente revisado e categorizado para garantir que você tenha acesso às informações mais relevantes e confiáveis.',
+                    'aboutText3': 'Seja para recursos educacionais, entretenimento, notícias ou ferramentas profissionais, o LinkCatalog facilita a descoberta de novos conteúdos e o retorno aos seus favoritos. Nossa interface amigável e funcionalidade de pesquisa poderosa ajudam você a navegar por milhares de links com facilidade.',
+                    'aboutText4': 'Estamos constantemente atualizando nosso catálogo com novos links e categorias para acompanhar o cenário digital em constante mudança. Nossa equipe trabalha diligentemente para garantir que todo o conteúdo seja atual, relevante e valioso para nossos usuários.',
+                    'contactTitle': 'Entre em Contato',
                     'contactEmail': 'Email: amissemomade125@gmail.com',
                     'contactPhone': 'Telefone: +258 86 890 1888',
                     'whatsappText': 'Contato via WhatsApp',
@@ -1769,9 +1913,12 @@
                     'subcategoriesTitle': 'Subcategories',
                     'searchResultsText': 'Search Results',
                     'featuredLinksText': 'Featured Links',
-                    'aboutTitle': 'About Us',
+                    'aboutTitle': 'About LinkCatalog',
                     'aboutText': 'LinkCatalog is a comprehensive directory of the best links on the internet, carefully curated and organized for easy discovery. Our mission is to help you find exactly what you\'re looking for without the hassle of endless searching.',
-                    'contactTitle': 'Contact',
+                    'aboutText2': 'Founded with the vision of creating a centralized hub for quality online resources, LinkCatalog brings together websites, videos, social media profiles, and other valuable content from across the web. Each link is carefully reviewed and categorized to ensure you have access to the most relevant and reliable information.',
+                    'aboutText3': 'Whether you\'re looking for educational resources, entertainment, news, or professional tools, LinkCatalog makes it easy to discover new content and revisit your favorites. Our user-friendly interface and powerful search functionality help you navigate through thousands of links with ease.',
+                    'aboutText4': 'We\'re constantly updating our catalog with new links and categories to keep up with the ever-changing digital landscape. Our team works diligently to ensure that all content is current, relevant, and valuable to our users.',
+                    'contactTitle': 'Contact Us',
                     'contactEmail': 'Email: amissemomade125@gmail.com',
                     'contactPhone': 'Phone: +258 86 890 1888',
                     'whatsappText': 'Contact via WhatsApp',
@@ -1895,6 +2042,8 @@
         }
 
         function openCategory(category) {
+            console.log('Opening category:', category);
+            
             // If it's the adult category, show age verification
             if (category.isAdult) {
                 showAgeVerification();
@@ -1902,6 +2051,9 @@
             }
             
             currentCategory = category;
+            
+            // Update URL
+            updateURL(category);
             
             // Hide categories and search results
             document.querySelector('.categories').style.display = 'none';
@@ -2076,6 +2228,9 @@
         function backToCategories() {
             currentCategory = null;
             currentSubcategory = null;
+            
+            // Update URL
+            updateURL();
             
             // Hide subcategories and search results
             document.getElementById('subcategoriesSection').style.display = 'none';
