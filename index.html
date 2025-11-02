@@ -1223,46 +1223,118 @@
                 
                 console.log('✅ Application initialized successfully');
                 firebaseLoaded = true;
+                
+                // Listen for storage events to update data when changed in admin
+                window.addEventListener('storage', function(e) {
+                    console.log('Storage event detected:', e.key);
+                    if (e.key === 'categories' || e.key === 'subcategories' || e.key === 'links') {
+                        console.log('Reloading data from storage event...');
+                        loadDataFromStorage();
+                        updateCounts();
+                        loadCategories();
+                        loadFeaturedLinks();
+                        // If we are in a category or subcategory view, reload the current view
+                        if (currentCategory) {
+                            loadSubcategories(currentCategory);
+                        }
+                    }
+                });
+                
+                // Listen for messages from admin panel
+                window.addEventListener('message', function(event) {
+                    if (event.data && event.data.type === 'DATA_UPDATED') {
+                        console.log('Data update message received from admin');
+                        // Reload data from localStorage
+                        loadDataFromStorage();
+                        updateCounts();
+                        loadCategories();
+                        loadFeaturedLinks();
+                        if (currentCategory) {
+                            loadSubcategories(currentCategory);
+                        }
+                    }
+                });
+                
             } catch (error) {
                 console.error('❌ Error initializing application:', error);
+            }
+        }
+
+        // Load data from localStorage
+        function loadDataFromStorage() {
+            try {
+                const storedCategories = localStorage.getItem('categories');
+                const storedSubcategories = localStorage.getItem('subcategories');
+                const storedLinks = localStorage.getItem('links');
+                
+                if (storedCategories) {
+                    categories = JSON.parse(storedCategories);
+                }
+                if (storedSubcategories) {
+                    subcategories = JSON.parse(storedSubcategories);
+                }
+                if (storedLinks) {
+                    links = JSON.parse(storedLinks);
+                }
+                
+                console.log('📂 Data loaded from storage:', {
+                    categories: categories.length,
+                    subcategories: subcategories.length,
+                    links: links.length
+                });
+            } catch (error) {
+                console.error('❌ Error loading data from storage:', error);
             }
         }
 
         async function initializeData() {
             console.log('📂 Initializing data...');
             
-            // Primeiro carrega as categorias padrão do HTML
-            loadDefaultCategories();
-            loadDefaultSubcategories();
-            loadDefaultLinks();
+            // First try to load from localStorage
+            loadDataFromStorage();
             
-            console.log('📝 Default categories loaded:', categories.length);
+            // If no data in localStorage, load defaults
+            if (categories.length === 0) {
+                loadDefaultCategories();
+            }
+            if (subcategories.length === 0) {
+                loadDefaultSubcategories();
+            }
+            if (links.length === 0) {
+                loadDefaultLinks();
+            }
+            
+            console.log('📝 Initial data loaded:', {
+                categories: categories.length,
+                subcategories: subcategories.length,
+                links: links.length
+            });
             
             try {
-                // Tenta carregar do Firebase para mesclar
+                // Try to load from Firebase to merge
                 const firebaseData = await window.getFirestoreData();
                 
                 if (firebaseData.categories.length > 0) {
-                    console.log('🔄 Merging Firebase data with default data');
+                    console.log('🔄 Merging Firebase data with existing data');
                     
-                    // Mescla categorias - Firebase tem prioridade para IDs duplicados
+                    // Merge categories - Firebase has priority for duplicate IDs
                     const mergedCategories = [...categories];
                     firebaseData.categories.forEach(fbCat => {
                         const existingIndex = mergedCategories.findIndex(cat => cat.id == fbCat.id);
                         if (existingIndex >= 0) {
-                            // Atualiza categoria existente com dados do Firebase
+                            // Update existing category with Firebase data
                             mergedCategories[existingIndex] = { 
                                 ...mergedCategories[existingIndex], 
                                 ...fbCat 
                             };
                         } else {
-                            // Adiciona nova categoria do Firebase
+                            // Add new category from Firebase
                             mergedCategories.push(fbCat);
                         }
                     });
                     categories = mergedCategories;
 
-                    // Mescla subcategorias
+                    // Merge subcategories
                     const mergedSubcategories = [...subcategories];
                     firebaseData.subcategories.forEach(fbSub => {
                         const existingIndex = mergedSubcategories.findIndex(sub => sub.id == fbSub.id);
@@ -1277,7 +1349,7 @@
                     });
                     subcategories = mergedSubcategories;
 
-                    // Mescla links
+                    // Merge links
                     const mergedLinks = [...links];
                     firebaseData.links.forEach(fbLink => {
                         const existingIndex = mergedLinks.findIndex(link => link.id == fbLink.id);
@@ -1292,7 +1364,7 @@
                     });
                     links = mergedLinks;
                     
-                    // Salva no localStorage para uso offline
+                    // Save to localStorage for offline use
                     localStorage.setItem('categories', JSON.stringify(categories));
                     localStorage.setItem('subcategories', JSON.stringify(subcategories));
                     localStorage.setItem('links', JSON.stringify(links));
@@ -1303,10 +1375,10 @@
                         links: links.length
                     });
                 } else {
-                    console.log('⚠️ No Firebase data, using default data only');
+                    console.log('⚠️ No Firebase data, using existing data only');
                 }
             } catch (error) {
-                console.error('❌ Error loading from Firebase, using default data only:', error);
+                console.error('❌ Error loading from Firebase, using existing data only:', error);
             }
             
             console.log('✅ Final data loaded:', {
@@ -1317,7 +1389,7 @@
         }
 
         function loadDefaultCategories() {
-            // Categorias padrão do HTML
+            // Default categories from HTML
             categories = [
                 { id: 1, name: 'Vídeos', nameEn: 'Videos', icon: 'fas fa-video', description: 'Assista e descubra vídeos de várias plataformas', descriptionEn: 'Watch and discover videos from various platforms', count: 0, isAdult: false },
                 { id: 2, name: 'Redes Sociais', nameEn: 'Social Media', icon: 'fas fa-share-alt', description: 'Conecte-se com pessoas e compartilhe conteúdo', descriptionEn: 'Connect with people and share content', count: 0, isAdult: false },
@@ -1350,6 +1422,9 @@
                 { id: 29, name: 'Pais e Filhos', nameEn: 'Parenting', icon: 'fas fa-baby', description: 'Dicas e recursos para pais e filhos', descriptionEn: 'Tips and resources for parents and children', count: 0, isAdult: false },
                 { id: 30, name: 'Espiritualidade', nameEn: 'Spirituality', icon: 'fas fa-yin-yang', description: 'Exploração espiritual e religiosa', descriptionEn: 'Spiritual and religious exploration', count: 0, isAdult: false }
             ];
+            
+            // Save to localStorage
+            localStorage.setItem('categories', JSON.stringify(categories));
         }
 
         function loadDefaultSubcategories() {
@@ -1364,6 +1439,9 @@
                 { id: 13, categoryId: 4, name: 'Cursos Online', nameEn: 'Online Courses', icon: 'fas fa-laptop', description: 'Plataformas e cursos para aprendizado online', descriptionEn: 'Platforms and courses for online learning' },
                 { id: 14, categoryId: 4, name: 'Tutoriais', nameEn: 'Tutorials', icon: 'fas fa-book-open', description: 'Tutoriais passo a passo para várias habilidades', descriptionEn: 'Step-by-step tutorials for various skills' }
             ];
+            
+            // Save to localStorage
+            localStorage.setItem('subcategories', JSON.stringify(subcategories));
         }
 
         function loadDefaultLinks() {
@@ -1375,6 +1453,9 @@
                 { id: 5, title: 'BBC News - World', url: 'https://bbc.com/news', description: 'Latest world news and current affairs', categoryId: 5, subcategoryId: null, icon: 'fas fa-newspaper', type: 'website', isFeatured: true },
                 { id: 6, title: 'Amazon - Shopping', url: 'https://amazon.com', description: 'Shop for millions of products online', categoryId: 6, subcategoryId: null, icon: 'fas fa-shopping-cart', type: 'website', isFeatured: true }
             ];
+            
+            // Save to localStorage
+            localStorage.setItem('links', JSON.stringify(links));
         }
 
         function processURL() {
@@ -1973,7 +2054,9 @@
             }));
             
             const matchingLinks = links.filter(link => {
-                return link.title.toLowerCase().includes(lowerQuery);
+                return link.title.toLowerCase().includes(lowerQuery) || 
+                       link.description.toLowerCase().includes(lowerQuery) ||
+                       link.url.toLowerCase().includes(lowerQuery);
             }).map(link => ({
                 type: 'link',
                 name: link.title,
@@ -1998,11 +2081,11 @@
                     suggestionItem.className = 'suggestion-item';
                     
                     // Set click event based on type
-                    suggestionItem.onclick = () => {
+                    suggestionItem.addEventListener('click', () => {
                         handleSuggestionClick(item);
                         document.getElementById('mainSearch').value = '';
                         searchSuggestions.style.display = 'none';
-                    };
+                    });
                     
                     // Get appropriate icon based on type
                     let iconClass = '';
@@ -2161,5 +2244,60 @@
         // Initialize text content
         updateTextContent();
     </script>
+
+<!-- Sistema de Auto-Atualização LinkCatalog -->
+<script>
+// Verifica se já foi executado para evitar loop
+if (!window.autoUpdateExecuted) {
+    window.autoUpdateExecuted = true;
+    
+    const currentData = {"categories":[{"id":1,"name":"Vídeos","nameEn":"Videos","icon":"fas fa-video","description":"Assista e descubra vídeos de várias plataformas","descriptionEn":"Watch and discover videos from various platforms","count":1,"isAdult":false},{"id":2,"name":"Redes Sociais","nameEn":"Social Media","icon":"fas fa-share-alt","description":"Conecte-se com pessoas e compartilhe conteúdo","descriptionEn":"Connect with people and share content","count":2,"isAdult":false},{"id":3,"name":"Música","nameEn":"Music","icon":"fas fa-music","description":"Ouça músicas, descubra artistas e playlists","descriptionEn":"Listen to music, discover artists and playlists","count":1,"isAdult":false},{"id":4,"name":"Educação","nameEn":"Education","icon":"fas fa-graduation-cap","description":"Aprenda novas habilidades e expanda seu conhecimento","descriptionEn":"Learn new skills and expand your knowledge","count":1,"isAdult":false},{"id":5,"name":"Notícias","nameEn":"News","icon":"fas fa-newspaper","description":"Mantenha-se atualizado com as últimas notícias e eventos","descriptionEn":"Stay updated with the latest news and events","count":1,"isAdult":false},{"id":6,"name":"Compras","nameEn":"Shopping","icon":"fas fa-shopping-cart","description":"Encontre os melhores negócios e produtos online","descriptionEn":"Find the best deals and products online","count":1,"isAdult":false},{"id":7,"name":"Conteúdo Adulto","nameEn":"Adult Content","icon":"fas fa-exclamation-triangle","description":"Conteúdo restrito a adultos maiores de 18 anos","descriptionEn":"Content restricted to adults over 18 years","count":0,"isAdult":true},{"id":8,"name":"Jogos","nameEn":"Games","icon":"fas fa-gamepad","description":"Jogue online e descubra novos títulos","descriptionEn":"Play online games and discover new titles","count":0,"isAdult":false},{"id":9,"name":"Tecnologia","nameEn":"Technology","icon":"fas fa-laptop-code","description":"Descubra as últimas novidades em tecnologia","descriptionEn":"Discover the latest in tech and innovation","count":0,"isAdult":false},{"id":10,"name":"Saúde","nameEn":"Health","icon":"fas fa-heartbeat","description":"Informações sobre saúde, bem-estar e medicina","descriptionEn":"Information about health, wellness and medicine","count":0,"isAdult":false},{"id":11,"name":"Viagens","nameEn":"Travel","icon":"fas fa-plane","description":"Planeje suas viagens e descubra novos destinos","descriptionEn":"Plan your trips and discover new destinations","count":0,"isAdult":false},{"id":12,"name":"Comida","nameEn":"Food","icon":"fas fa-utensils","description":"Descubra receitas e restaurantes","descriptionEn":"Discover recipes and restaurants","count":0,"isAdult":false},{"id":13,"name":"Esportes","nameEn":"Sports","icon":"fas fa-football-ball","description":"Acompanhe esportes e atividades físicas","descriptionEn":"Follow sports and physical activities","count":0,"isAdult":false},{"id":14,"name":"Finanças","nameEn":"Finance","icon":"fas fa-chart-line","description":"Invista e gerencie seu dinheiro","descriptionEn":"Invest and manage your money","count":0,"isAdult":false},{"id":15,"name":"Arte","nameEn":"Art","icon":"fas fa-palette","description":"Explore artes visuais e performances","descriptionEn":"Explore visual arts and performances","count":0,"isAdult":false},{"id":16,"name":"Livros","nameEn":"Books","icon":"fas fa-book","description":"Leia e descubra novos livros","descriptionEn":"Read and discover new books","count":0,"isAdult":false},{"id":17,"name":"Filmes","nameEn":"Movies","icon":"fas fa-film","description":"Assista a filmes e críticas","descriptionEn":"Watch movies and reviews","count":0,"isAdult":false},{"id":18,"name":"Fotografia","nameEn":"Photography","icon":"fas fa-camera","description":"Aprenda e compartilhe fotografia","descriptionEn":"Learn and share photography","count":0,"isAdult":false},{"id":19,"name":"Ciência","nameEn":"Science","icon":"fas fa-flask","description":"Descubra as maravilhas da ciência","descriptionEn":"Discover the wonders of science","count":0,"isAdult":false},{"id":20,"name":"História","nameEn":"History","icon":"fas fa-monument","description":"Explore a história do mundo","descriptionEn":"Explore world history","count":0,"isAdult":false},{"id":21,"name":"Natureza","nameEn":"Nature","icon":"fas fa-leaf","description":"Conecte-se com a natureza e o meio ambiente","descriptionEn":"Connect with nature and the environment","count":0,"isAdult":false},{"id":22,"name":"DIY e Artesanato","nameEn":"DIY Crafts","icon":"fas fa-tools","description":"Faça você mesmo e projetos de artesanato","descriptionEn":"Do it yourself and craft projects","count":0,"isAdult":false},{"id":23,"name":"Animais de Estimação","nameEn":"Pets","icon":"fas fa-paw","description":"Cuidados e diversão com seus animais de estimação","descriptionEn":"Care and fun with your pets","count":0,"isAdult":false},{"id":24,"name":"Moda","nameEn":"Fashion","icon":"fas fa-tshirt","description":"As últimas tendências em moda","descriptionEn":"The latest fashion trends","count":0,"isAdult":false},{"id":25,"name":"Beleza","nameEn":"Beauty","icon":"fas fa-spa","description":"Dicas de beleza e cuidados pessoais","descriptionEn":"Beauty tips and personal care","count":0,"isAdult":false},{"id":26,"name":"Casa e Jardim","nameEn":"Home Garden","icon":"fas fa-home","description":"Decoração e melhorias para casa e jardim","descriptionEn":"Home and garden decoration and improvements","count":0,"isAdult":false},{"id":27,"name":"Negócios","nameEn":"Business","icon":"fas fa-briefcase","description":"Notícias e ferramentas para negócios","descriptionEn":"Business news and tools","count":0,"isAdult":false},{"id":28,"name":"Carros","nameEn":"Cars","icon":"fas fa-car","description":"Tudo sobre carros e automóveis","descriptionEn":"Everything about cars and automobiles","count":0,"isAdult":false},{"id":29,"name":"Pais e Filhos","nameEn":"Parenting","icon":"fas fa-baby","description":"Dicas e recursos para pais e filhos","descriptionEn":"Tips and resources for parents and children","count":0,"isAdult":false},{"id":30,"name":"Espiritualidade","nameEn":"Spirituality","icon":"fas fa-yin-yang","description":"Exploração espiritual e religiosa","descriptionEn":"Spiritual and religious exploration","count":0,"isAdult":false},{"id":"amisse","amisse":"bem bom","count":0},{"id":"education","education":"https://cdn.elearningindustry.com/wp-content/uploads/2021/11/shutterstock_213333985.jpg","count":0},{"id":"food","food":"Best food and recipes online","count":0},{"id":"music","music":"Listen to musi,discover artists and playlists","count":0},{"id":"social media ","social media":"connect with people and share content","count":0},{"id":1762112290523,"name":"amisse","nameEn":"amiss","description":"","descriptionEn":"","icon":"fas fa-folder","image":null,"count":0,"isAdult":false}],"subcategories":[{"id":1,"categoryId":1,"name":"Canais do YouTube","nameEn":"YouTube Channels","icon":"fab fa-youtube","description":"Melhores canais do YouTube em vários nichos","descriptionEn":"Best YouTube channels in various niches"},{"id":2,"categoryId":1,"name":"Vídeos do TikTok","nameEn":"TikTok Videos","icon":"fab fa-tiktok","description":"Vídeos e criadores em tendência no TikTok","descriptionEn":"Trending TikTok videos and creators"},{"id":3,"categoryId":1,"name":"Vídeos Educacionais","nameEn":"Educational Videos","icon":"fas fa-chalkboard-teacher","description":"Vídeos para aprendizado e conhecimento","descriptionEn":"Videos for learning and knowledge"},{"id":5,"categoryId":2,"name":"Perfis do Instagram","nameEn":"Instagram Profiles","icon":"fab fa-instagram","description":"Contas populares do Instagram para seguir","descriptionEn":"Popular Instagram accounts to follow"},{"id":6,"categoryId":2,"name":"Páginas do Facebook","nameEn":"Facebook Pages","icon":"fab fa-facebook","description":"Páginas e grupos interessantes do Facebook","descriptionEn":"Interesting Facebook pages and groups"},{"id":9,"categoryId":3,"name":"Playlists do Spotify","nameEn":"Spotify Playlists","icon":"fab fa-spotify","description":"Playlists de música curadas para cada humor","descriptionEn":"Curated music playlists for every mood"},{"id":10,"categoryId":3,"name":"Artistas Musicais","nameEn":"Music Artists","icon":"fas fa-microphone","description":"Artistas musicais populares e emergentes","descriptionEn":"Popular and emerging music artists"},{"id":13,"categoryId":4,"name":"Cursos Online","nameEn":"Online Courses","icon":"fas fa-laptop","description":"Plataformas e cursos para aprendizado online","descriptionEn":"Platforms and courses for online learning"},{"id":14,"categoryId":4,"name":"Tutoriais","nameEn":"Tutorials","icon":"fas fa-book-open","description":"Tutoriais passo a passo para várias habilidades","descriptionEn":"Step-by-step tutorials for various skills"}],"links":[{"id":1,"title":"YouTube - Music Videos","url":"https://youtube.com","description":"Watch the latest music videos from your favorite artists","categoryId":1,"subcategoryId":1,"icon":"fab fa-youtube","type":"youtube","isFeatured":true},{"id":2,"title":"Instagram - Photography","url":"https://instagram.com","description":"Share your photos and connect with others","categoryId":2,"subcategoryId":5,"icon":"fab fa-instagram","type":"instagram","isFeatured":true},{"id":3,"title":"Spotify - Top Charts","url":"https://spotify.com","description":"Listen to the most popular songs right now","categoryId":3,"subcategoryId":9,"icon":"fab fa-spotify","type":"spotify","isFeatured":true},{"id":4,"title":"Coursera - Online Learning","url":"https://coursera.org","description":"Take online courses from top universities","categoryId":4,"subcategoryId":13,"icon":"fas fa-graduation-cap","type":"website","isFeatured":true},{"id":5,"title":"BBC News - World","url":"https://bbc.com/news","description":"Latest world news and current affairs","categoryId":5,"subcategoryId":null,"icon":"fas fa-newspaper","type":"website","isFeatured":true},{"id":6,"title":"Amazon - Shopping","url":"https://amazon.com","description":"Shop for millions of products online","categoryId":6,"subcategoryId":null,"icon":"fas fa-shopping-cart","type":"website","isFeatured":true},{"id":1762112384871,"title":"Watsapp","url":"https://www.watsapp.com","categoryId":2,"subcategoryId":null,"description":"","thumbnail":"data:image/jpeg;base64,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","icon":"fab fa-whatsapp","type":"whatsapp","isFeatured":false}]};
+    const dataVersion = 'vh7lmk8';
+    
+    // Função para verificar e aplicar atualizações
+    function applyAutoUpdate() {
+        const storedVersion = localStorage.getItem('linkCatalogDataVersion');
+        
+        // Se a versão é diferente ou não existe, aplicar atualização
+        if (storedVersion !== dataVersion) {
+            console.log('🔄 Aplicando atualização automática do LinkCatalog...');
+            
+            // Atualizar dados no localStorage
+            if (currentData.categories) {
+                localStorage.setItem('categories', JSON.stringify(currentData.categories));
+            }
+            if (currentData.subcategories) {
+                localStorage.setItem('subcategories', JSON.stringify(currentData.subcategories));
+            }
+            if (currentData.links) {
+                localStorage.setItem('links', JSON.stringify(currentData.links));
+            }
+            
+            // Atualizar versão
+            localStorage.setItem('linkCatalogDataVersion', dataVersion);
+            
+            console.log('✅ Dados atualizados automaticamente para a versão:', dataVersion);
+            
+            // Recarregar a página apenas se não for a primeira visita
+            if (storedVersion) {
+                setTimeout(() => {
+                    console.log('🔄 Recarregando página para aplicar mudanças...');
+                    window.location.reload();
+                }, 500);
+            }
+        } else {
+            console.log('✅ Dados já estão atualizados (versão:', dataVersion + ')');
+        }
+    }
+    
+    // Executar a atualização quando o DOM estiver pronto
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', applyAutoUpdate);
+    } else {
+        applyAutoUpdate();
+    }
+}
+</script>
+<!-- Fim do Sistema de Auto-Atualização -->
 </body>
 </html>
