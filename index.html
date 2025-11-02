@@ -1292,6 +1292,11 @@
                     });
                     links = mergedLinks;
                     
+                    // Salva no localStorage para uso offline
+                    localStorage.setItem('categories', JSON.stringify(categories));
+                    localStorage.setItem('subcategories', JSON.stringify(subcategories));
+                    localStorage.setItem('links', JSON.stringify(links));
+                    
                     console.log('✅ Data merged successfully:', {
                         categories: categories.length,
                         subcategories: subcategories.length,
@@ -1303,11 +1308,6 @@
             } catch (error) {
                 console.error('❌ Error loading from Firebase, using default data only:', error);
             }
-            
-            // Salva no localStorage para uso offline
-            localStorage.setItem('categories', JSON.stringify(categories));
-            localStorage.setItem('subcategories', JSON.stringify(subcategories));
-            localStorage.setItem('links', JSON.stringify(links));
             
             console.log('✅ Final data loaded:', {
                 categories: categories.length,
@@ -1973,8 +1973,7 @@
             }));
             
             const matchingLinks = links.filter(link => {
-                return link.title.toLowerCase().includes(lowerQuery) || 
-                       link.description.toLowerCase().includes(lowerQuery);
+                return link.title.toLowerCase().includes(lowerQuery);
             }).map(link => ({
                 type: 'link',
                 name: link.title,
@@ -1999,11 +1998,11 @@
                     suggestionItem.className = 'suggestion-item';
                     
                     // Set click event based on type
-                    suggestionItem.addEventListener('click', () => {
+                    suggestionItem.onclick = () => {
                         handleSuggestionClick(item);
                         document.getElementById('mainSearch').value = '';
                         searchSuggestions.style.display = 'none';
-                    });
+                    };
                     
                     // Get appropriate icon based on type
                     let iconClass = '';
