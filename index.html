@@ -153,6 +153,20 @@
             transform: translateY(-2px);
         }
 
+        @media (max-width: 768px) {
+            .age-verification-content {
+                padding: 20px;
+            }
+            
+            .age-verification-buttons {
+                flex-direction: column;
+            }
+            
+            .age-btn {
+                width: 100%;
+            }
+        }
+
         /* Cookie Banner */
         .cookie-banner {
             position: fixed;
@@ -222,7 +236,7 @@
             background: var(--light);
             border-radius: 0 0 10px 10px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.15);
-            max-height: 180px;
+            max-height: 250px;
             overflow-y: auto;
             z-index: 100;
             display: none;
@@ -231,12 +245,12 @@
         }
 
         .suggestion-item {
-            padding: 10px 12px;
+            padding: 12px 15px;
             cursor: pointer;
             border-bottom: 1px solid #f0f0f0;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             transition: all 0.2s;
             color: var(--text-dark);
         }
@@ -250,10 +264,10 @@
         }
 
         .suggestion-icon {
-            width: 18px;
+            width: 20px;
             text-align: center;
             color: var(--accent);
-            font-size: 0.8rem;
+            font-size: 0.9rem;
         }
 
         .suggestion-content {
@@ -262,23 +276,17 @@
 
         .suggestion-title {
             font-weight: 600;
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             color: var(--text-dark);
             margin-bottom: 2px;
-        }
-
-        .suggestion-description {
-            font-size: 0.7rem;
-            color: var(--text-light);
-            line-height: 1.2;
         }
 
         .suggestion-type {
             background: var(--accent);
             color: var(--light);
-            padding: 2px 6px;
+            padding: 3px 8px;
             border-radius: 10px;
-            font-size: 0.6rem;
+            font-size: 0.65rem;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -288,8 +296,12 @@
             background: var(--success);
         }
 
-        .suggestion-type.link {
+        .suggestion-type.subcategory {
             background: var(--primary);
+        }
+
+        .suggestion-type.link {
+            background: var(--warning);
         }
 
         /* Main Container */
@@ -1063,9 +1075,9 @@
     <!-- Firebase SDK -->
     <script type="module">
         // Import the functions you need from the SDKs you need
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
-        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
-        
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
         // Your web app's Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyAC0NltZjfZAtcSv8UNLusZBzFx9R8lyBw",
@@ -1075,15 +1087,53 @@
             messagingSenderId: "110614159971",
             appId: "1:110614159971:web:e3fd795400c992e2d38e56"
         };
-        
+
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+
+        // Make Firebase functions available globally
+        window.firebaseApp = app;
+        window.firestoreDb = db;
         
-        // Make Firebase available globally
-        window.db = db;
-        window.getDocs = getDocs;
-        window.collection = collection;
+        // Function to get data from Firebase
+        window.getFirestoreData = async function() {
+            try {
+                console.log('🔥 Loading data from Firebase...');
+                
+                // Get categories
+                const categoriesSnapshot = await getDocs(collection(db, 'categories'));
+                const categories = [];
+                categoriesSnapshot.forEach((doc) => {
+                    categories.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Get subcategories
+                const subcategoriesSnapshot = await getDocs(collection(db, 'subcategories'));
+                const subcategories = [];
+                subcategoriesSnapshot.forEach((doc) => {
+                    subcategories.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Get links
+                const linksSnapshot = await getDocs(collection(db, 'links'));
+                const links = [];
+                linksSnapshot.forEach((doc) => {
+                    links.push({ id: doc.id, ...doc.data() });
+                });
+
+                console.log('✅ Firebase data loaded:', {
+                    categories: categories.length,
+                    subcategories: subcategories.length,
+                    links: links.length
+                });
+
+                return { categories, subcategories, links };
+            } catch (error) {
+                console.error('❌ Error loading from Firebase:', error);
+                return { categories: [], subcategories: [], links: [] };
+            }
+        };
     </script>
 
     <script>
@@ -1099,6 +1149,7 @@
         let currentSubcategory = null;
         let searchTimeout = null;
         let urlProcessed = false;
+        let firebaseLoaded = false;
 
         // URL parameter mapping
         const urlToCategoryMap = {
@@ -1142,10 +1193,10 @@
 
         async function initializeApp() {
             try {
-                console.log('🔧 Initializing application with Firebase...');
+                console.log('🔧 Initializing application...');
                 
-                // Load data from Firebase
-                await loadDataFromFirebase();
+                // Initialize data first with Firebase
+                await initializeData();
                 
                 // Update counts
                 updateCounts();
@@ -1170,52 +1221,103 @@
                     }, 3000);
                 }
                 
-                console.log('✅ Application initialized successfully with Firebase');
+                console.log('✅ Application initialized successfully');
+                firebaseLoaded = true;
             } catch (error) {
                 console.error('❌ Error initializing application:', error);
-                // Fallback to default data if Firebase fails
-                loadDefaultData();
             }
         }
 
-        async function loadDataFromFirebase() {
-            try {
-                console.log('🔥 Loading data from Firebase...');
-                
-                // Load categories
-                const categoriesSnapshot = await getDocs(collection(db, 'categories'));
-                categories = categoriesSnapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-                console.log('✅ Categories loaded from Firebase:', categories.length);
-                
-                // Load subcategories
-                const subcategoriesSnapshot = await getDocs(collection(db, 'subcategories'));
-                subcategories = subcategoriesSnapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-                console.log('✅ Subcategories loaded from Firebase:', subcategories.length);
-                
-                // Load links
-                const linksSnapshot = await getDocs(collection(db, 'links'));
-                links = linksSnapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-                console.log('✅ Links loaded from Firebase:', links.length);
-                
-            } catch (error) {
-                console.error('❌ Error loading data from Firebase:', error);
-                throw error;
-            }
-        }
-
-        function loadDefaultData() {
-            console.log('📝 Loading default data...');
+        async function initializeData() {
+            console.log('📂 Initializing data...');
             
-            // Default categories
+            // Primeiro carrega as categorias padrão do HTML
+            loadDefaultCategories();
+            loadDefaultSubcategories();
+            loadDefaultLinks();
+            
+            console.log('📝 Default categories loaded:', categories.length);
+            
+            try {
+                // Tenta carregar do Firebase para mesclar
+                const firebaseData = await window.getFirestoreData();
+                
+                if (firebaseData.categories.length > 0) {
+                    console.log('🔄 Merging Firebase data with default data');
+                    
+                    // Mescla categorias - Firebase tem prioridade para IDs duplicados
+                    const mergedCategories = [...categories];
+                    firebaseData.categories.forEach(fbCat => {
+                        const existingIndex = mergedCategories.findIndex(cat => cat.id == fbCat.id);
+                        if (existingIndex >= 0) {
+                            // Atualiza categoria existente com dados do Firebase
+                            mergedCategories[existingIndex] = { 
+                                ...mergedCategories[existingIndex], 
+                                ...fbCat 
+                            };
+                        } else {
+                            // Adiciona nova categoria do Firebase
+                            mergedCategories.push(fbCat);
+                        }
+                    });
+                    categories = mergedCategories;
+
+                    // Mescla subcategorias
+                    const mergedSubcategories = [...subcategories];
+                    firebaseData.subcategories.forEach(fbSub => {
+                        const existingIndex = mergedSubcategories.findIndex(sub => sub.id == fbSub.id);
+                        if (existingIndex >= 0) {
+                            mergedSubcategories[existingIndex] = { 
+                                ...mergedSubcategories[existingIndex], 
+                                ...fbSub 
+                            };
+                        } else {
+                            mergedSubcategories.push(fbSub);
+                        }
+                    });
+                    subcategories = mergedSubcategories;
+
+                    // Mescla links
+                    const mergedLinks = [...links];
+                    firebaseData.links.forEach(fbLink => {
+                        const existingIndex = mergedLinks.findIndex(link => link.id == fbLink.id);
+                        if (existingIndex >= 0) {
+                            mergedLinks[existingIndex] = { 
+                                ...mergedLinks[existingIndex], 
+                                ...fbLink 
+                            };
+                        } else {
+                            mergedLinks.push(fbLink);
+                        }
+                    });
+                    links = mergedLinks;
+                    
+                    console.log('✅ Data merged successfully:', {
+                        categories: categories.length,
+                        subcategories: subcategories.length,
+                        links: links.length
+                    });
+                } else {
+                    console.log('⚠️ No Firebase data, using default data only');
+                }
+            } catch (error) {
+                console.error('❌ Error loading from Firebase, using default data only:', error);
+            }
+            
+            // Salva no localStorage para uso offline
+            localStorage.setItem('categories', JSON.stringify(categories));
+            localStorage.setItem('subcategories', JSON.stringify(subcategories));
+            localStorage.setItem('links', JSON.stringify(links));
+            
+            console.log('✅ Final data loaded:', {
+                categories: categories.length,
+                subcategories: subcategories.length,
+                links: links.length
+            });
+        }
+
+        function loadDefaultCategories() {
+            // Categorias padrão do HTML
             categories = [
                 { id: 1, name: 'Vídeos', nameEn: 'Videos', icon: 'fas fa-video', description: 'Assista e descubra vídeos de várias plataformas', descriptionEn: 'Watch and discover videos from various platforms', count: 0, isAdult: false },
                 { id: 2, name: 'Redes Sociais', nameEn: 'Social Media', icon: 'fas fa-share-alt', description: 'Conecte-se com pessoas e compartilhe conteúdo', descriptionEn: 'Connect with people and share content', count: 0, isAdult: false },
@@ -1223,10 +1325,34 @@
                 { id: 4, name: 'Educação', nameEn: 'Education', icon: 'fas fa-graduation-cap', description: 'Aprenda novas habilidades e expanda seu conhecimento', descriptionEn: 'Learn new skills and expand your knowledge', count: 0, isAdult: false },
                 { id: 5, name: 'Notícias', nameEn: 'News', icon: 'fas fa-newspaper', description: 'Mantenha-se atualizado com as últimas notícias e eventos', descriptionEn: 'Stay updated with the latest news and events', count: 0, isAdult: false },
                 { id: 6, name: 'Compras', nameEn: 'Shopping', icon: 'fas fa-shopping-cart', description: 'Encontre os melhores negócios e produtos online', descriptionEn: 'Find the best deals and products online', count: 0, isAdult: false },
-                { id: 7, name: 'Conteúdo Adulto', nameEn: 'Adult Content', icon: 'fas fa-exclamation-triangle', description: 'Conteúdo restrito a adultos maiores de 18 anos', descriptionEn: 'Content restricted to adults over 18 years', count: 0, isAdult: true }
+                { id: 7, name: 'Conteúdo Adulto', nameEn: 'Adult Content', icon: 'fas fa-exclamation-triangle', description: 'Conteúdo restrito a adultos maiores de 18 anos', descriptionEn: 'Content restricted to adults over 18 years', count: 0, isAdult: true },
+                { id: 8, name: 'Jogos', nameEn: 'Games', icon: 'fas fa-gamepad', description: 'Jogue online e descubra novos títulos', descriptionEn: 'Play online games and discover new titles', count: 0, isAdult: false },
+                { id: 9, name: 'Tecnologia', nameEn: 'Technology', icon: 'fas fa-laptop-code', description: 'Descubra as últimas novidades em tecnologia', descriptionEn: 'Discover the latest in tech and innovation', count: 0, isAdult: false },
+                { id: 10, name: 'Saúde', nameEn: 'Health', icon: 'fas fa-heartbeat', description: 'Informações sobre saúde, bem-estar e medicina', descriptionEn: 'Information about health, wellness and medicine', count: 0, isAdult: false },
+                { id: 11, name: 'Viagens', nameEn: 'Travel', icon: 'fas fa-plane', description: 'Planeje suas viagens e descubra novos destinos', descriptionEn: 'Plan your trips and discover new destinations', count: 0, isAdult: false },
+                { id: 12, name: 'Comida', nameEn: 'Food', icon: 'fas fa-utensils', description: 'Descubra receitas e restaurantes', descriptionEn: 'Discover recipes and restaurants', count: 0, isAdult: false },
+                { id: 13, name: 'Esportes', nameEn: 'Sports', icon: 'fas fa-football-ball', description: 'Acompanhe esportes e atividades físicas', descriptionEn: 'Follow sports and physical activities', count: 0, isAdult: false },
+                { id: 14, name: 'Finanças', nameEn: 'Finance', icon: 'fas fa-chart-line', description: 'Invista e gerencie seu dinheiro', descriptionEn: 'Invest and manage your money', count: 0, isAdult: false },
+                { id: 15, name: 'Arte', nameEn: 'Art', icon: 'fas fa-palette', description: 'Explore artes visuais e performances', descriptionEn: 'Explore visual arts and performances', count: 0, isAdult: false },
+                { id: 16, name: 'Livros', nameEn: 'Books', icon: 'fas fa-book', description: 'Leia e descubra novos livros', descriptionEn: 'Read and discover new books', count: 0, isAdult: false },
+                { id: 17, name: 'Filmes', nameEn: 'Movies', icon: 'fas fa-film', description: 'Assista a filmes e críticas', descriptionEn: 'Watch movies and reviews', count: 0, isAdult: false },
+                { id: 18, name: 'Fotografia', nameEn: 'Photography', icon: 'fas fa-camera', description: 'Aprenda e compartilhe fotografia', descriptionEn: 'Learn and share photography', count: 0, isAdult: false },
+                { id: 19, name: 'Ciência', nameEn: 'Science', icon: 'fas fa-flask', description: 'Descubra as maravilhas da ciência', descriptionEn: 'Discover the wonders of science', count: 0, isAdult: false },
+                { id: 20, name: 'História', nameEn: 'History', icon: 'fas fa-monument', description: 'Explore a história do mundo', descriptionEn: 'Explore world history', count: 0, isAdult: false },
+                { id: 21, name: 'Natureza', nameEn: 'Nature', icon: 'fas fa-leaf', description: 'Conecte-se com a natureza e o meio ambiente', descriptionEn: 'Connect with nature and the environment', count: 0, isAdult: false },
+                { id: 22, name: 'DIY e Artesanato', nameEn: 'DIY Crafts', icon: 'fas fa-tools', description: 'Faça você mesmo e projetos de artesanato', descriptionEn: 'Do it yourself and craft projects', count: 0, isAdult: false },
+                { id: 23, name: 'Animais de Estimação', nameEn: 'Pets', icon: 'fas fa-paw', description: 'Cuidados e diversão com seus animais de estimação', descriptionEn: 'Care and fun with your pets', count: 0, isAdult: false },
+                { id: 24, name: 'Moda', nameEn: 'Fashion', icon: 'fas fa-tshirt', description: 'As últimas tendências em moda', descriptionEn: 'The latest fashion trends', count: 0, isAdult: false },
+                { id: 25, name: 'Beleza', nameEn: 'Beauty', icon: 'fas fa-spa', description: 'Dicas de beleza e cuidados pessoais', descriptionEn: 'Beauty tips and personal care', count: 0, isAdult: false },
+                { id: 26, name: 'Casa e Jardim', nameEn: 'Home Garden', icon: 'fas fa-home', description: 'Decoração e melhorias para casa e jardim', descriptionEn: 'Home and garden decoration and improvements', count: 0, isAdult: false },
+                { id: 27, name: 'Negócios', nameEn: 'Business', icon: 'fas fa-briefcase', description: 'Notícias e ferramentas para negócios', descriptionEn: 'Business news and tools', count: 0, isAdult: false },
+                { id: 28, name: 'Carros', nameEn: 'Cars', icon: 'fas fa-car', description: 'Tudo sobre carros e automóveis', descriptionEn: 'Everything about cars and automobiles', count: 0, isAdult: false },
+                { id: 29, name: 'Pais e Filhos', nameEn: 'Parenting', icon: 'fas fa-baby', description: 'Dicas e recursos para pais e filhos', descriptionEn: 'Tips and resources for parents and children', count: 0, isAdult: false },
+                { id: 30, name: 'Espiritualidade', nameEn: 'Spirituality', icon: 'fas fa-yin-yang', description: 'Exploração espiritual e religiosa', descriptionEn: 'Spiritual and religious exploration', count: 0, isAdult: false }
             ];
-            
-            // Default subcategories
+        }
+
+        function loadDefaultSubcategories() {
             subcategories = [
                 { id: 1, categoryId: 1, name: 'Canais do YouTube', nameEn: 'YouTube Channels', icon: 'fab fa-youtube', description: 'Melhores canais do YouTube em vários nichos', descriptionEn: 'Best YouTube channels in various niches' },
                 { id: 2, categoryId: 1, name: 'Vídeos do TikTok', nameEn: 'TikTok Videos', icon: 'fab fa-tiktok', description: 'Vídeos e criadores em tendência no TikTok', descriptionEn: 'Trending TikTok videos and creators' },
@@ -1238,8 +1364,9 @@
                 { id: 13, categoryId: 4, name: 'Cursos Online', nameEn: 'Online Courses', icon: 'fas fa-laptop', description: 'Plataformas e cursos para aprendizado online', descriptionEn: 'Platforms and courses for online learning' },
                 { id: 14, categoryId: 4, name: 'Tutoriais', nameEn: 'Tutorials', icon: 'fas fa-book-open', description: 'Tutoriais passo a passo para várias habilidades', descriptionEn: 'Step-by-step tutorials for various skills' }
             ];
-            
-            // Default links
+        }
+
+        function loadDefaultLinks() {
             links = [
                 { id: 1, title: 'YouTube - Music Videos', url: 'https://youtube.com', description: 'Watch the latest music videos from your favorite artists', categoryId: 1, subcategoryId: 1, icon: 'fab fa-youtube', type: 'youtube', isFeatured: true },
                 { id: 2, title: 'Instagram - Photography', url: 'https://instagram.com', description: 'Share your photos and connect with others', categoryId: 2, subcategoryId: 5, icon: 'fab fa-instagram', type: 'instagram', isFeatured: true },
@@ -1248,8 +1375,6 @@
                 { id: 5, title: 'BBC News - World', url: 'https://bbc.com/news', description: 'Latest world news and current affairs', categoryId: 5, subcategoryId: null, icon: 'fas fa-newspaper', type: 'website', isFeatured: true },
                 { id: 6, title: 'Amazon - Shopping', url: 'https://amazon.com', description: 'Shop for millions of products online', categoryId: 6, subcategoryId: null, icon: 'fas fa-shopping-cart', type: 'website', isFeatured: true }
             ];
-            
-            console.log('✅ Default data loaded');
         }
 
         function processURL() {
@@ -1447,9 +1572,9 @@
             // Clear the grid
             categoriesGrid.innerHTML = '';
             
-            // Filter out any corrupted categories and ensure name exists
+            // Filter out any corrupted categories
             const validCategories = categories.filter(cat => 
-                cat && (cat.name || cat.nameEn || cat.id) && cat.name !== 'undefined' && (cat.name || '').trim() !== ''
+                cat && cat.name && cat.name !== 'undefined' && cat.name.trim() !== ''
             );
             
             // Determine how many categories to show
@@ -1475,23 +1600,18 @@
                 
                 // Use event listener instead of onclick for better compatibility
                 categoryCard.addEventListener('click', function() {
-                    console.log('🎯 Category clicked:', category.name || category.nameEn || category.id);
+                    console.log('🎯 Category clicked:', category.name);
                     openCategory(category);
                 });
                 
-                const categoryName = currentLanguage === 'pt' ? 
-                    (category.name || category.nameEn || category.id) : 
-                    (category.nameEn || category.name || category.id);
-                
-                const categoryDescription = currentLanguage === 'pt' ? 
-                    (category.description || category.descriptionEn || '') : 
-                    (category.descriptionEn || category.description || '');
+                const categoryName = currentLanguage === 'pt' ? category.name : category.nameEn;
+                const categoryDescription = currentLanguage === 'pt' ? category.description : category.descriptionEn;
                 
                 // Count links in this category
                 const linkCount = links.filter(link => link.categoryId === category.id).length;
                 
                 categoryCard.innerHTML = `
-                    <div class="category-icon"><i class="${category.icon || 'fas fa-folder'}"></i></div>
+                    <div class="category-icon"><i class="${category.icon}"></i></div>
                     <h3>${categoryName}</h3>
                     ${category.isAdult ? '<span class="adult-category-warning">+18</span>' : ''}
                     <div class="category-count">${linkCount}</div>
@@ -1529,7 +1649,7 @@
         }
 
         function openCategory(category) {
-            console.log('📂 Opening category:', category.name || category.nameEn || category.id);
+            console.log('📂 Opening category:', category.name);
             
             // If it's the adult category, show age verification
             if (category.isAdult) {
@@ -1560,9 +1680,7 @@
             // Update subcategories title
             const subcategoriesTitle = document.getElementById('subcategoriesTitle');
             if (subcategoriesTitle) {
-                const categoryName = currentLanguage === 'pt' ? 
-                    (category.name || category.nameEn || category.id) : 
-                    (category.nameEn || category.name || category.id);
+                const categoryName = currentLanguage === 'pt' ? category.name : category.nameEn;
                 subcategoriesTitle.innerHTML = `<i class="fas fa-folder-open"></i> ${categoryName}`;
             }
             
@@ -1587,12 +1705,9 @@
             if (categorySubcategories.length === 0) {
                 // If no subcategories, show all links in this category
                 if (subcategoriesInfo) {
-                    const categoryName = currentLanguage === 'pt' ? 
-                        (category.name || category.nameEn || category.id) : 
-                        (category.nameEn || category.name || category.id);
                     subcategoriesInfo.textContent = currentLanguage === 'pt' 
-                        ? `Mostrando todos os links da categoria ${categoryName}` 
-                        : `Showing all links in category ${categoryName}`;
+                        ? `Mostrando todos os links da categoria ${currentLanguage === 'pt' ? category.name : category.nameEn}` 
+                        : `Showing all links in category ${currentLanguage === 'pt' ? category.name : category.nameEn}`;
                 }
                 
                 loadLinksForCategory(category.id);
@@ -1612,23 +1727,18 @@
                 
                 // Use event listener instead of onclick
                 subcategoryCard.addEventListener('click', function() {
-                    console.log('🎯 Subcategory clicked:', subcategory.name || subcategory.nameEn || subcategory.id);
+                    console.log('🎯 Subcategory clicked:', subcategory.name);
                     openSubcategory(subcategory);
                 });
                 
-                const subcategoryName = currentLanguage === 'pt' ? 
-                    (subcategory.name || subcategory.nameEn || subcategory.id) : 
-                    (subcategory.nameEn || subcategory.name || subcategory.id);
-                
-                const subcategoryDescription = currentLanguage === 'pt' ? 
-                    (subcategory.description || subcategory.descriptionEn || '') : 
-                    (subcategory.descriptionEn || subcategory.description || '');
+                const subcategoryName = currentLanguage === 'pt' ? subcategory.name : subcategory.nameEn;
+                const subcategoryDescription = currentLanguage === 'pt' ? subcategory.description : subcategory.descriptionEn;
                 
                 // Count links in this subcategory
                 const linkCount = links.filter(link => link.subcategoryId === subcategory.id).length;
                 
                 subcategoryCard.innerHTML = `
-                    <div class="subcategory-icon"><i class="${subcategory.icon || 'fas fa-folder'}"></i></div>
+                    <div class="subcategory-icon"><i class="${subcategory.icon}"></i></div>
                     <h4>${subcategoryName}</h4>
                     <div class="subcategory-count">${linkCount}</div>
                     <p class="subcategory-description">${subcategoryDescription}</p>
@@ -1639,7 +1749,7 @@
         }
 
         function openSubcategory(subcategory) {
-            console.log('📂 Opening subcategory:', subcategory.name || subcategory.nameEn || subcategory.id);
+            console.log('📂 Opening subcategory:', subcategory.name);
             currentSubcategory = subcategory;
             loadLinksForSubcategory(subcategory.id);
         }
@@ -1681,9 +1791,7 @@
             // Update info text
             const subcategory = subcategories.find(sub => sub.id === subcategoryId);
             if (subcategory && subcategoriesInfo) {
-                const subcategoryName = currentLanguage === 'pt' ? 
-                    (subcategory.name || subcategory.nameEn || subcategory.id) : 
-                    (subcategory.nameEn || subcategory.name || subcategory.id);
+                const subcategoryName = currentLanguage === 'pt' ? subcategory.name : subcategory.nameEn;
                 subcategoriesInfo.textContent = currentLanguage === 'pt' 
                     ? `Mostrando links da subcategoria "${subcategoryName}"` 
                     : `Showing links from subcategory "${subcategoryName}"`;
@@ -1721,33 +1829,29 @@
             linkCard.className = 'link-card';
             
             const category = categories.find(cat => cat.id === link.categoryId);
-            const categoryName = category ? 
-                (currentLanguage === 'pt' ? 
-                    (category.name || category.nameEn || category.id) : 
-                    (category.nameEn || category.name || category.id)) : 
-                'Unknown Category';
+            const categoryName = category ? (currentLanguage === 'pt' ? category.name : category.nameEn) : 'Unknown Category';
             
             linkCard.innerHTML = `
                 <div class="link-thumbnail">
                     <div class="thumbnail-placeholder">
-                        <i class="${link.icon || 'fas fa-link'}"></i>
+                        <i class="${link.icon}"></i>
                     </div>
-                    <div class="link-badge">${link.type || 'website'}</div>
+                    <div class="link-badge">${link.type}</div>
                 </div>
                 <div class="link-content">
                     <div class="link-header">
-                        <div class="link-icon ${link.type || 'website'}">
-                            <i class="${link.icon || 'fas fa-link'}"></i>
+                        <div class="link-icon ${link.type}">
+                            <i class="${link.icon}"></i>
                         </div>
                         <div>
-                            <h3 class="link-title">${link.title || 'Untitled Link'}</h3>
-                            <p class="link-url">${link.url || '#'}</p>
+                            <h3 class="link-title">${link.title}</h3>
+                            <p class="link-url">${link.url}</p>
                         </div>
                     </div>
-                    <p class="link-description">${link.description || 'No description available.'}</p>
+                    <p class="link-description">${link.description}</p>
                     <div class="link-meta">
                         <span class="link-category">${categoryName}</span>
-                        <a href="${link.url || '#'}" target="_blank" class="btn">${currentLanguage === 'pt' ? 'Acessar' : 'Access'}</a>
+                        <a href="${link.url}" target="_blank" class="btn">${currentLanguage === 'pt' ? 'Acessar' : 'Access'}</a>
                     </div>
                 </div>
             `;
@@ -1851,37 +1955,36 @@
             const lowerQuery = query.toLowerCase();
             
             const matchingCategories = categories.filter(cat => {
-                const name = currentLanguage === 'pt' ? 
-                    (cat.name || cat.nameEn || cat.id) : 
-                    (cat.nameEn || cat.name || cat.id);
-                const description = currentLanguage === 'pt' ? 
-                    (cat.description || cat.descriptionEn || '') : 
-                    (cat.descriptionEn || cat.description || '');
-                return (name && name.toLowerCase().includes(lowerQuery)) || 
-                       (description && description.toLowerCase().includes(lowerQuery));
-            });
+                const name = currentLanguage === 'pt' ? cat.name : cat.nameEn;
+                return name.toLowerCase().includes(lowerQuery);
+            }).map(cat => ({
+                type: 'category',
+                name: currentLanguage === 'pt' ? cat.name : cat.nameEn,
+                data: cat
+            }));
             
             const matchingSubcategories = subcategories.filter(sub => {
-                const name = currentLanguage === 'pt' ? 
-                    (sub.name || sub.nameEn || sub.id) : 
-                    (sub.nameEn || sub.name || sub.id);
-                const description = currentLanguage === 'pt' ? 
-                    (sub.description || sub.descriptionEn || '') : 
-                    (sub.descriptionEn || sub.description || '');
-                return (name && name.toLowerCase().includes(lowerQuery)) || 
-                       (description && description.toLowerCase().includes(lowerQuery));
-            });
+                const name = currentLanguage === 'pt' ? sub.name : sub.nameEn;
+                return name.toLowerCase().includes(lowerQuery);
+            }).map(sub => ({
+                type: 'subcategory',
+                name: currentLanguage === 'pt' ? sub.name : sub.nameEn,
+                data: sub
+            }));
             
             const matchingLinks = links.filter(link => {
-                return (link.title && link.title.toLowerCase().includes(lowerQuery)) || 
-                       (link.description && link.description.toLowerCase().includes(lowerQuery)) ||
-                       (link.url && link.url.toLowerCase().includes(lowerQuery));
-            });
+                return link.title.toLowerCase().includes(lowerQuery) || 
+                       link.description.toLowerCase().includes(lowerQuery);
+            }).map(link => ({
+                type: 'link',
+                name: link.title,
+                data: link
+            }));
             
-            // Create suggestion items
-            if (matchingCategories.length === 0 && 
-                matchingSubcategories.length === 0 && 
-                matchingLinks.length === 0) {
+            // Combine all suggestions
+            const allSuggestions = [...matchingCategories, ...matchingSubcategories, ...matchingLinks];
+            
+            if (allSuggestions.length === 0) {
                 searchSuggestions.innerHTML = `
                     <div class="suggestion-item">
                         <div class="suggestion-content">
@@ -1890,93 +1993,41 @@
                     </div>
                 `;
             } else {
-                // Add categories
-                matchingCategories.slice(0, 3).forEach(category => {
-                    const name = currentLanguage === 'pt' ? 
-                        (category.name || category.nameEn || category.id) : 
-                        (category.nameEn || category.name || category.id);
-                    const description = currentLanguage === 'pt' ? 
-                        (category.description || category.descriptionEn || '') : 
-                        (category.descriptionEn || category.description || '');
-                    
+                // Display up to 8 suggestions
+                allSuggestions.slice(0, 8).forEach(item => {
                     const suggestionItem = document.createElement('div');
                     suggestionItem.className = 'suggestion-item';
-                    suggestionItem.onclick = () => {
-                        openCategory(category);
+                    
+                    // Set click event based on type
+                    suggestionItem.addEventListener('click', () => {
+                        handleSuggestionClick(item);
                         document.getElementById('mainSearch').value = '';
                         searchSuggestions.style.display = 'none';
-                    };
+                    });
+                    
+                    // Get appropriate icon based on type
+                    let iconClass = '';
+                    let typeText = '';
+                    
+                    if (item.type === 'category') {
+                        iconClass = item.data.icon;
+                        typeText = currentLanguage === 'pt' ? 'Categoria' : 'Category';
+                    } else if (item.type === 'subcategory') {
+                        iconClass = item.data.icon;
+                        typeText = currentLanguage === 'pt' ? 'Subcategoria' : 'Subcategory';
+                    } else if (item.type === 'link') {
+                        iconClass = item.data.icon;
+                        typeText = currentLanguage === 'pt' ? 'Link' : 'Link';
+                    }
                     
                     suggestionItem.innerHTML = `
                         <div class="suggestion-icon">
-                            <i class="${category.icon || 'fas fa-folder'}"></i>
+                            <i class="${iconClass}"></i>
                         </div>
                         <div class="suggestion-content">
-                            <div class="suggestion-title">${name}</div>
-                            <div class="suggestion-description">${description}</div>
+                            <div class="suggestion-title">${item.name}</div>
                         </div>
-                        <div class="suggestion-type category">${currentLanguage === 'pt' ? 'Categoria' : 'Category'}</div>
-                    `;
-                    
-                    searchSuggestions.appendChild(suggestionItem);
-                });
-                
-                // Add subcategories
-                matchingSubcategories.slice(0, 3).forEach(subcategory => {
-                    const name = currentLanguage === 'pt' ? 
-                        (subcategory.name || subcategory.nameEn || subcategory.id) : 
-                        (subcategory.nameEn || subcategory.name || subcategory.id);
-                    const description = currentLanguage === 'pt' ? 
-                        (subcategory.description || subcategory.descriptionEn || '') : 
-                        (subcategory.descriptionEn || subcategory.description || '');
-                    
-                    const suggestionItem = document.createElement('div');
-                    suggestionItem.className = 'suggestion-item';
-                    suggestionItem.onclick = () => {
-                        const category = categories.find(cat => cat.id === subcategory.categoryId);
-                        if (category) {
-                            openCategory(category);
-                            setTimeout(() => {
-                                openSubcategory(subcategory);
-                            }, 100);
-                        }
-                        document.getElementById('mainSearch').value = '';
-                        searchSuggestions.style.display = 'none';
-                    };
-                    
-                    suggestionItem.innerHTML = `
-                        <div class="suggestion-icon">
-                            <i class="${subcategory.icon || 'fas fa-folder'}"></i>
-                        </div>
-                        <div class="suggestion-content">
-                            <div class="suggestion-title">${name}</div>
-                            <div class="suggestion-description">${description}</div>
-                        </div>
-                        <div class="suggestion-type">${currentLanguage === 'pt' ? 'Subcategoria' : 'Subcategory'}</div>
-                    `;
-                    
-                    searchSuggestions.appendChild(suggestionItem);
-                });
-                
-                // Add links
-                matchingLinks.slice(0, 4).forEach(link => {
-                    const suggestionItem = document.createElement('div');
-                    suggestionItem.className = 'suggestion-item';
-                    suggestionItem.onclick = () => {
-                        window.open(link.url, '_blank');
-                        document.getElementById('mainSearch').value = '';
-                        searchSuggestions.style.display = 'none';
-                    };
-                    
-                    suggestionItem.innerHTML = `
-                        <div class="suggestion-icon">
-                            <i class="${link.icon || 'fas fa-link'}"></i>
-                        </div>
-                        <div class="suggestion-content">
-                            <div class="suggestion-title">${link.title || 'Untitled Link'}</div>
-                            <div class="suggestion-description">${link.description || 'No description available'}</div>
-                        </div>
-                        <div class="suggestion-type link">${currentLanguage === 'pt' ? 'Link' : 'Link'}</div>
+                        <div class="suggestion-type ${item.type}">${typeText}</div>
                     `;
                     
                     searchSuggestions.appendChild(suggestionItem);
@@ -1984,6 +2035,29 @@
             }
             
             searchSuggestions.style.display = 'block';
+        }
+
+        function handleSuggestionClick(item) {
+            switch (item.type) {
+                case 'category':
+                    openCategory(item.data);
+                    break;
+                case 'subcategory':
+                    // Find the category of this subcategory
+                    const category = categories.find(cat => cat.id === item.data.categoryId);
+                    if (category) {
+                        openCategory(category);
+                        // We need to open the subcategory, but note that openCategory is async and loads subcategories.
+                        // We can set a timeout to open the subcategory after the category is opened.
+                        setTimeout(() => {
+                            openSubcategory(item.data);
+                        }, 300);
+                    }
+                    break;
+                case 'link':
+                    window.open(item.data.url, '_blank');
+                    break;
+            }
         }
 
         function performSearch() {
@@ -2026,9 +2100,9 @@
             // Find matching links
             const lowerQuery = query.toLowerCase();
             const matchingLinks = links.filter(link => {
-                return (link.title && link.title.toLowerCase().includes(lowerQuery)) || 
-                       (link.description && link.description.toLowerCase().includes(lowerQuery)) ||
-                       (link.url && link.url.toLowerCase().includes(lowerQuery));
+                return link.title.toLowerCase().includes(lowerQuery) || 
+                       link.description.toLowerCase().includes(lowerQuery) ||
+                       link.url.toLowerCase().includes(lowerQuery);
             });
             
             console.log('🔍 Search results:', matchingLinks.length);
